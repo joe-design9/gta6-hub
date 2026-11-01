@@ -32,11 +32,14 @@ struct ContentView: View {
                 GalleryView()
                     .tabItem { Label("Galerie", systemImage: "photo.on.rectangle.angled") }
                     .tag(3)
+                NostalgiaView()
+                    .tabItem { Label("Nostalgie", systemImage: "heart.fill") }
+                    .tag(4)
                 SettingsView()
                     .tabItem { Label("Mehr", systemImage: "gearshape.fill") }
-                    .tag(4)
+                    .tag(5)
             }
-            .tint(.white)
+            .tint(Vice.coral)
             #if QA
             QABadge()
             #endif

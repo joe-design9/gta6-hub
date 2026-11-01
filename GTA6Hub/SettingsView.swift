@@ -103,7 +103,7 @@ struct SettingsView: View {
                 Text("ÜBER GTA 6 HUB")
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
-                row("Version", "1.0.0")
+                row("Version", "1.1.0")
                 Divider().overlay(Color.white.opacity(0.12))
                 row("Release GTA 6", "19. November 2026")
                 Divider().overlay(Color.white.opacity(0.12))

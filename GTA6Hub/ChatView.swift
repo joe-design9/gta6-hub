@@ -109,13 +109,13 @@ struct ChatView: View {
             if message.role == .user { Spacer(minLength: 60) }
             Text(message.text)
                 .font(.body)
-                .foregroundStyle(message.role == .user ? .black : .white)
+                .foregroundStyle(.white)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .background {
                     if message.role == .user {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color.white)
+                            .fill(Vice.sunset)
                     } else {
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
                             .fill(.clear)
@@ -161,9 +161,9 @@ struct ChatView: View {
             } label: {
                 Image(systemName: "arrow.up")
                     .font(.body.weight(.bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.white)
                     .frame(width: 40, height: 40)
-                    .background(Circle().fill(Color.white))
+                    .background(Circle().fill(Vice.sunset))
             }
             .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.isThinking)
             .opacity(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.4 : 1)

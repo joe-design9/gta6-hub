@@ -42,4 +42,12 @@ enum GTA6 {
         c.year = 2026; c.month = 11; c.day = 12; c.hour = 0; c.minute = 0; c.second = 0
         return Calendar(identifier: .gregorian).date(from: c) ?? Date()
     }
+
+    /// Trailer 1: 5. Dezember 2023 — Start der Wartezeit (Nostalgie-Tab).
+    static var trailer1Date: Date {
+        var c = DateComponents()
+        c.timeZone = TimeZone(identifier: "Europe/Berlin")
+        c.year = 2023; c.month = 12; c.day = 5; c.hour = 0; c.minute = 0; c.second = 0
+        return Calendar(identifier: .gregorian).date(from: c) ?? Date()
+    }
 }

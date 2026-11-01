@@ -31,24 +31,43 @@ struct HomeView: View {
                     Text("GRAND THEFT AUTO VI")
                         .font(.caption.weight(.bold))
                         .tracking(2)
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Vice.sunset)
                     Spacer()
                     Text("19.11.2026")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.6))
                 }
                 TimelineView(.periodic(from: .now, by: 1)) { context in
-                    let parts = countdownParts(to: GTA6.releaseDate, now: context.date)
-                    HStack(spacing: 10) {
-                        timeTile(value: parts.days, label: "TAGE")
-                        timeTile(value: parts.hours, label: "STD")
-                        timeTile(value: parts.minutes, label: "MIN")
-                        timeTile(value: parts.seconds, label: "SEK")
+                    let now = effectiveNow(context.date)
+                    VStack(spacing: 14) {
+                        if now >= GTA6.releaseDate {
+                            Text("ES IST DA 🎉")
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Vice.sunset)
+                            let parts = countdownParts(from: GTA6.releaseDate, now: now)
+                            HStack(spacing: 10) {
+                                timeTile(value: parts.days, label: "TAGE")
+                                timeTile(value: parts.hours, label: "STD")
+                                timeTile(value: parts.minutes, label: "MIN")
+                                timeTile(value: parts.seconds, label: "SEK")
+                            }
+                            Text("seit dem Launch — willkommen in Leonida 🌴")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.75))
+                        } else {
+                            let parts = countdownParts(to: GTA6.releaseDate, now: now)
+                            HStack(spacing: 10) {
+                                timeTile(value: parts.days, label: "TAGE")
+                                timeTile(value: parts.hours, label: "STD")
+                                timeTile(value: parts.minutes, label: "MIN")
+                                timeTile(value: parts.seconds, label: "SEK")
+                            }
+                            Text("bis zum Launch um Mitternacht 🎮")
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.75))
+                        }
                     }
                 }
-                Text("bis zum Launch um Mitternacht 🎮")
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.75))
             }
             .padding(20)
         }
@@ -73,20 +92,20 @@ struct HomeView: View {
     private var milestones: some View {
         GlassCard {
             VStack(spacing: 0) {
-                milestoneRow(icon: "arrow.down.circle.fill", title: "Preload startet", date: GTA6.preloadDate)
+                milestoneRow(icon: "arrow.down.circle.fill", title: "Preload startet", date: GTA6.preloadDate, color: Vice.orange)
                 Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 52)
-                milestoneRow(icon: "gamecontroller.fill", title: "Release — GTA 6", date: GTA6.releaseDate)
+                milestoneRow(icon: "gamecontroller.fill", title: "Release — GTA 6", date: GTA6.releaseDate, color: Vice.pink)
             }
             .padding(.vertical, 6)
         }
     }
 
-    private func milestoneRow(icon: String, title: String, date: Date) -> some View {
+    private func milestoneRow(icon: String, title: String, date: Date, color: Color) -> some View {
         let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: date)).day ?? 0
         return HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(color)
                 .frame(width: 28)
             VStack(alignment: .leading, spacing: 1) {
                 Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
@@ -160,6 +179,22 @@ struct HomeView: View {
     private func countdownParts(to target: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
         let interval = max(0, Int(target.timeIntervalSince(now)))
         return (interval / 86400, (interval % 86400) / 3600, (interval % 3600) / 60, interval % 60)
+    }
+
+    private func countdownParts(from start: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
+        let interval = max(0, Int(now.timeIntervalSince(start)))
+        return (interval / 86400, (interval % 86400) / 3600, (interval % 3600) / 60, interval % 60)
+    }
+
+    /// QA darf den Post-Release-Zustand vorab sehen (-QAPreviewReleased);
+    /// im Release-Build ist das immer die echte Zeit.
+    private func effectiveNow(_ date: Date) -> Date {
+        #if QA
+        if ProcessInfo.processInfo.arguments.contains("-QAPreviewReleased") {
+            return GTA6.releaseDate.addingTimeInterval(2 * 86400 + 5 * 3600 + 12 * 60)
+        }
+        #endif
+        return date
     }
 }
 
