@@ -23,15 +23,21 @@ struct NewsView: View {
         }
     }
 
+    private func updatedLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Lang.locale
+        f.dateStyle = .none
+        f.timeStyle = .short
+        let t = f.string(from: date)
+        return store.language == "en" ? "Updated live · \(t)" : "Live aktualisiert · \(t) Uhr"
+    }
+
     private var newsList: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 if let updated = store.newsUpdated {
                     HStack {
-                        Text(store.tr(
-                            "Live aktualisiert · \(updated, format: .dateTime.hour().minute().locale(Locale(identifier: "de_DE"))) Uhr",
-                            "Updated live · \(updated, format: .dateTime.hour().minute().locale(Locale(identifier: "en_US")))"
-                        ))
+                        Text(updatedLabel(updated))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.45))
                         Spacer()
