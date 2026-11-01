@@ -11,6 +11,19 @@ final class AppStore: ObservableObject {
     @Published var newsError: String?
     @Published var newsUpdated: Date?
     @Published var nvidiaKey: String = ""
+    @Published var language: String = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
+
+    /// Kurzer Sprachhelfer für alle Views: tr("Deutsch", "English").
+    func tr(_ de: String, _ en: String) -> String { language == "en" ? en : de }
+
+    func setLanguage(_ newValue: String) {
+        guard newValue != language else { return }
+        language = newValue
+        UserDefaults.standard.set(newValue, forKey: "appLanguage")
+        news = []
+        newsUpdated = nil
+        Task { await loadNews(force: true) }
+    }
 
     init() {
         nvidiaKey = Keychain.loadNVIDIAKey() ?? ""
@@ -48,7 +61,7 @@ final class AppStore: ObservableObject {
                 let answer = try await AIService.reply(history: history, nvidiaKey: key)
                 messages.append(ChatMessage(role: .assistant, text: answer))
             } catch {
-                messages.append(ChatMessage(role: .assistant, text: "Da ist was schiefgelaufen — prüf kurz deine Verbindung oder den NVIDIA-Key in den Einstellungen und versuch's nochmal."))
+                messages.append(ChatMessage(role: .assistant, text: tr("Da ist was schiefgelaufen — prüf kurz deine Verbindung oder den NVIDIA-Key in den Einstellungen und versuch's nochmal.", "Something went wrong — check your connection or the NVIDIA key in Settings and try again.")))
             }
             isThinking = false
         }
@@ -65,7 +78,7 @@ final class AppStore: ObservableObject {
             news = try await NewsService.fetch()
             newsUpdated = Date()
         } catch {
-            if news.isEmpty { newsError = "News konnten nicht geladen werden. Prüf deine Verbindung und zieh die Liste nach unten, um es erneut zu versuchen." }
+            if news.isEmpty { newsError = tr("News konnten nicht geladen werden. Prüf deine Verbindung und zieh die Liste nach unten, um es erneut zu versuchen.", "Couldn't load the news. Check your connection and pull the list down to try again.") }
         }
         newsLoading = false
     }

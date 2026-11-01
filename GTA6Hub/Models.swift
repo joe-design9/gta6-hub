@@ -9,7 +9,7 @@ struct NewsItem: Identifiable, Equatable {
 
     var relativeTime: String {
         let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "de_DE")
+        f.locale = Lang.locale
         f.unitsStyle = .short
         return f.localizedString(for: published, relativeTo: Date())
     }
@@ -24,6 +24,29 @@ struct ChatMessage: Identifiable, Equatable {
     enum Role {
         case user
         case assistant
+    }
+}
+
+/// App-Sprache (Deutsch/Englisch) — Quelle für Modelle und Services ohne Store-Zugriff.
+/// Der Store spiegelt denselben UserDefaults-Wert als @Published.
+enum Lang {
+    static var code: String { UserDefaults.standard.string(forKey: "appLanguage") ?? "de" }
+    static var isEN: Bool { code == "en" }
+    static var locale: Locale { Locale(identifier: isEN ? "en_US" : "de_DE") }
+    static func tr(_ de: String, _ en: String) -> String { isEN ? en : de }
+}
+
+/// Effektive „Jetzt“-Zeit für Views mit Countdown. QA darf den
+/// Post-Release-Zustand vorab sehen (-QAPreviewReleased); im
+/// Release-Build ist das immer die echte Zeit.
+enum EffectiveNow {
+    static func value(_ date: Date) -> Date {
+        #if QA
+        if ProcessInfo.processInfo.arguments.contains("-QAPreviewReleased") {
+            return GTA6.releaseDate.addingTimeInterval(2 * 86400 + 5 * 3600 + 12 * 60)
+        }
+        #endif
+        return date
     }
 }
 

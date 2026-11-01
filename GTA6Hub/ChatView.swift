@@ -12,7 +12,7 @@ struct ChatView: View {
                 messagesArea
                 inputBar
             }
-            .navigationTitle("KI-Chat")
+            .navigationTitle(store.tr("KI-Chat", "AI Chat"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -27,7 +27,7 @@ struct ChatView: View {
                 .foregroundStyle(.white.opacity(0.8))
             Spacer()
             if store.engineKind == .demo {
-                Text("Key in „Mehr“ hinterlegen")
+                Text(store.tr("Key in „Mehr“ hinterlegen", "Add a key in “More”"))
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.45))
             }
@@ -73,16 +73,16 @@ struct ChatView: View {
                 .font(.system(size: 44))
                 .foregroundStyle(.white.opacity(0.9))
                 .padding(.top, 60)
-            Text("Frag Mochi was")
+            Text(store.tr("Frag Mochi was", "Ask Mochi anything"))
                 .font(.title3.weight(.bold))
                 .foregroundStyle(.white)
-            Text("Countdown, News, Vice City — oder einfach quatschen.")
+            Text(store.tr("Countdown, News, Vice City — oder einfach quatschen.", "Countdown, news, Vice City — or just chat."))
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.6))
             VStack(spacing: 8) {
-                suggestionChip("Wann kommt GTA 6 raus?")
-                suggestionChip("Was gibt's Neues zu GTA 6?")
-                suggestionChip("Erzähl mir was über Vice City")
+                suggestionChip(store.tr("Wann kommt GTA 6 raus?", "When does GTA 6 come out?"))
+                suggestionChip(store.tr("Was gibt's Neues zu GTA 6?", "What's new with GTA 6?"))
+                suggestionChip(store.tr("Erzähl mir was über Vice City", "Tell me something about Vice City"))
             }
             .padding(.top, 6)
         }
@@ -146,7 +146,7 @@ struct ChatView: View {
 
     private var inputBar: some View {
         HStack(spacing: 10) {
-            TextField("Nachricht an Mochi …", text: $draft, axis: .vertical)
+            TextField(store.tr("Nachricht an Mochi …", "Message Mochi …"), text: $draft, axis: .vertical)
                 .lineLimit(1...4)
                 .foregroundStyle(.white)
                 .tint(.white)

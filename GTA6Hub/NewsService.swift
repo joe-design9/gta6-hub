@@ -1,14 +1,15 @@
 import Foundation
 
-/// Lädt GTA-6-Schlagzeilen live aus dem deutschen Google-News-RSS-Feed.
+/// Lädt GTA-6-Schlagzeilen live aus dem Google-News-RSS-Feed (Sprache der App).
 enum NewsService {
     static var feedURL: URL {
         var components = URLComponents(string: "https://news.google.com/rss/search")!
+        let en = Lang.isEN
         components.queryItems = [
             URLQueryItem(name: "q", value: "\"GTA 6\" OR \"GTA VI\" OR \"Grand Theft Auto VI\""),
-            URLQueryItem(name: "hl", value: "de"),
-            URLQueryItem(name: "gl", value: "DE"),
-            URLQueryItem(name: "ceid", value: "DE:de"),
+            URLQueryItem(name: "hl", value: en ? "en-US" : "de"),
+            URLQueryItem(name: "gl", value: en ? "US" : "DE"),
+            URLQueryItem(name: "ceid", value: en ? "US:en" : "DE:de"),
         ]
         return components.url!
     }

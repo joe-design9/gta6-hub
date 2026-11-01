@@ -8,7 +8,7 @@ struct NewsView: View {
         NavigationStack {
             Group {
                 if store.news.isEmpty && store.newsLoading {
-                    ProgressView("Lade News …")
+                    ProgressView(store.tr("Lade News …", "Loading news …"))
                         .tint(.white)
                         .foregroundStyle(.white.opacity(0.7))
                 } else if store.news.isEmpty, let error = store.newsError {
@@ -28,9 +28,12 @@ struct NewsView: View {
             LazyVStack(spacing: 12) {
                 if let updated = store.newsUpdated {
                     HStack {
-                        Text("Live aktualisiert · \(updated, format: .dateTime.hour().minute().locale(Locale(identifier: "de_DE"))) Uhr")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.45))
+                        Text(store.tr(
+                            "Live aktualisiert · \(updated, format: .dateTime.hour().minute().locale(Locale(identifier: "de_DE"))) Uhr",
+                            "Updated live · \(updated, format: .dateTime.hour().minute().locale(Locale(identifier: "en_US")))"
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.45))
                         Spacer()
                     }
                 }
@@ -81,7 +84,7 @@ struct NewsView: View {
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
-            Button("Erneut versuchen") {
+            Button(store.tr("Erneut versuchen", "Try again")) {
                 Task { await store.loadNews(force: true) }
             }
             .font(.subheadline.weight(.semibold))

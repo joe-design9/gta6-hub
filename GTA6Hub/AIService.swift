@@ -12,18 +12,28 @@ enum AIEngineKind: Equatable {
         switch self {
         case .apple: return "Apple Intelligence"
         case .nvidia: return "NVIDIA Nemotron"
-        case .demo: return "Demo-Modus"
+        case .demo: return Lang.tr("Demo-Modus", "Demo Mode")
         }
     }
 }
 
 enum AIService {
-    static let systemPrompt = """
-    Du bist Mochi, ein freundlicher, lockerer KI-Begleiter in Joels persönlichen GTA 6 Hub App. \
-    Antworte auf Deutsch, kurz und hilfreich, gern mit einem Augenzwinkern, aber ohne Geschwafel. \
-    Wichtigste Fakten: GTA 6 erscheint am 19. November 2026 für PS5 und Xbox Series X|S, \
-    der Preload startet am 12. November 2026. Joel hat die Ultimate Edition auf PS5 vorbestellt.
-    """
+    static var systemPrompt: String {
+        if Lang.isEN {
+            return """
+            You are Mochi, a friendly, easygoing AI companion in Joel's personal GTA 6 Hub app. \
+            Reply in English, short and helpful, with a wink but no rambling. \
+            Key facts: GTA 6 launches on November 19, 2026 for PS5 and Xbox Series X|S, \
+            preload starts November 12, 2026. Joel pre-ordered the Ultimate Edition on PS5.
+            """
+        }
+        return """
+        Du bist Mochi, ein freundlicher, lockerer KI-Begleiter in Joels persönlichen GTA 6 Hub App. \
+        Antworte auf Deutsch, kurz und hilfreich, gern mit einem Augenzwinkern, aber ohne Geschwafel. \
+        Wichtigste Fakten: GTA 6 erscheint am 19. November 2026 für PS5 und Xbox Series X|S, \
+        der Preload startet am 12. November 2026. Joel hat die Ultimate Edition auf PS5 vorbestellt.
+        """
+    }
 
     /// Welche Engine gerade aktiv ist: NVIDIA-Key schlägt Apple Intelligence schlägt Demo.
     static func activeEngine(nvidiaKey: String?) -> AIEngineKind {
@@ -110,17 +120,31 @@ enum AIService {
     // MARK: - Demo (kein Key, keine Apple Intelligence)
 
     private static func demoReply(history: [ChatMessage]) -> String {
+        let en = Lang.isEN
         let last = history.last(where: { $0.role == .user })?.text.lowercased() ?? ""
-        if last.contains("countdown") || last.contains("wie lange") || last.contains("wann") && last.contains("gta") {
+        if last.contains("countdown") || last.contains("wie lange") || last.contains("how long") || last.contains("wann") && last.contains("gta") || last.contains("when") && last.contains("gta") {
             let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: GTA6.releaseDate)).day ?? 0
-            return "GTA 6 erscheint am 19. November 2026 — das sind noch \(days) Tage. Der Preload startet am 12. November. Den Live-Countdown findest du im Start-Tab 🎮"
+            return en
+                ? "GTA 6 launches on November 19, 2026 — that's \(days) days to go. Preload starts November 12. You'll find the live countdown in the Start tab 🎮"
+                : "GTA 6 erscheint am 19. November 2026 — das sind noch \(days) Tage. Der Preload startet am 12. November. Den Live-Countdown findest du im Start-Tab 🎮"
         }
         if last.contains("news") || last.contains("neuigkeit") {
-            return "Die neuesten GTA-6-Schlagzeilen lade ich live im News-Tab — schau da mal rein, da ist alles aktuell von heute 📰"
+            return en
+                ? "I load the latest GTA 6 headlines live in the News tab — take a look, everything there is from today 📰"
+                : "Die neuesten GTA-6-Schlagzeilen lade ich live im News-Tab — schau da mal rein, da ist alles aktuell von heute 📰"
         }
-        if last.contains("screenshot") || last.contains("bild") {
-            return "Offizielle GTA-6-Bilder von Rockstar liegen in der Galerie bereit — Vice City sieht darauf absurd gut aus 🌴"
+        if last.contains("screenshot") || last.contains("bild") || last.contains("picture") {
+            return en
+                ? "Official GTA 6 artwork from Rockstar is waiting in the Gallery — Vice City looks absurdly good on it 🌴"
+                : "Offizielle GTA-6-Bilder von Rockstar liegen in der Galerie bereit — Vice City sieht darauf absurd gut aus 🌴"
         }
-        return "Ich laufe gerade im Demo-Modus, weil weder ein NVIDIA-Key hinterlegt ist noch Apple Intelligence auf diesem Gerät aktiv ist. Hinterleg deinen NVIDIA-Key in den Einstellungen, dann antworte ich mit dem großen Nemotron-Modell — oder nutz die App auf einem Gerät mit Apple Intelligence, dann läuft die KI direkt auf dem iPhone."
+        if last.contains("map") || last.contains("karte") {
+            return en
+                ? "The community's Leonida map lives in the Map tab — built by the GTA VI Mapping Project from every trailer frame. Zoom in, Vice City is huge 🗺️"
+                : "Die Leonida-Karte der Community wartet im Map-Tab — vom GTA VI Mapping Project aus jedem Trailer-Frame gebaut. Zoom mal rein, Vice City ist riesig 🗺️"
+        }
+        return en
+            ? "I'm running in demo mode right now because there's no NVIDIA key saved and Apple Intelligence isn't active on this device. Add your NVIDIA key in Settings and I'll answer with the big Nemotron model — or use the app on a device with Apple Intelligence and the AI runs right on the iPhone."
+            : "Ich laufe gerade im Demo-Modus, weil weder ein NVIDIA-Key hinterlegt ist noch Apple Intelligence auf diesem Gerät aktiv ist. Hinterleg deinen NVIDIA-Key in den Einstellungen, dann antworte ich mit dem großen Nemotron-Modell — oder nutz die App auf einem Gerät mit Apple Intelligence, dann läuft die KI direkt auf dem iPhone."
     }
 }

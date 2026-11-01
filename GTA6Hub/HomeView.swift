@@ -1,135 +1,119 @@
 import SwiftUI
 
+/// Start-Tab: kompakter Countdown-Teaser (alles Ausführliche lebt im
+/// eigenen „GTA 6 Countdown“-Tab), Top-Meldung, Schnellzugriff, Orakel.
 struct HomeView: View {
     @EnvironmentObject private var store: AppStore
+    @State private var oracleIndex: Int?
+    @State private var oracleStars = 0
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    countdownCard
-                    milestones
+                    miniCountdown
                     if let top = store.news.first {
                         topStory(top)
                     }
                     quickActions
+                    oracleCard
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .padding(.bottom, 24)
             }
-            .navigationTitle("Moin Joel 👋")
+            .navigationTitle(store.tr("Moin Joel 👋", "Hey Joel 👋"))
             .navigationBarTitleDisplayMode(.large)
             .task { await store.loadNews() }
         }
     }
 
-    private var countdownCard: some View {
-        GlassCard {
-            VStack(spacing: 14) {
-                HStack {
-                    Text("GRAND THEFT AUTO VI")
-                        .font(.caption.weight(.bold))
-                        .tracking(2)
-                        .foregroundStyle(Vice.sunset)
-                    Spacer()
-                    Text("19.11.2026")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-                TimelineView(.periodic(from: .now, by: 1)) { context in
-                    let now = effectiveNow(context.date)
-                    VStack(spacing: 14) {
+    // MARK: - Countdown-Teaser
+
+    private var miniCountdown: some View {
+        Button {
+            store.selectedTab = 1
+        } label: {
+            GlassCard {
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("GRAND THEFT AUTO VI")
+                            .font(.caption.weight(.bold))
+                            .tracking(2)
+                            .foregroundStyle(Vice.sunset)
+                        Spacer()
+                        Text("19.11.2026")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        let now = EffectiveNow.value(context.date)
                         if now >= GTA6.releaseDate {
-                            Text("ES IST DA 🎉")
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Vice.sunset)
-                            let parts = countdownParts(from: GTA6.releaseDate, now: now)
-                            HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: "TAGE")
-                                timeTile(value: parts.hours, label: "STD")
-                                timeTile(value: parts.minutes, label: "MIN")
-                                timeTile(value: parts.seconds, label: "SEK")
+                            HStack {
+                                Text("ES IST DA 🎉")
+                                    .font(.headline.weight(.bold))
+                                    .foregroundStyle(Vice.sunset)
+                                Spacer()
+                                Text(store.tr("Willkommen in Leonida 🌴", "Welcome to Leonida 🌴"))
+                                    .font(.caption)
+                                    .foregroundStyle(.white.opacity(0.7))
                             }
-                            Text("seit dem Launch — willkommen in Leonida 🌴")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
                         } else {
-                            let parts = countdownParts(to: GTA6.releaseDate, now: now)
+                            let interval = max(0, Int(GTA6.releaseDate.timeIntervalSince(now)))
                             HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: "TAGE")
-                                timeTile(value: parts.hours, label: "STD")
-                                timeTile(value: parts.minutes, label: "MIN")
-                                timeTile(value: parts.seconds, label: "SEK")
+                                miniTile(value: interval / 86400, label: store.tr("TAGE", "DAYS"))
+                                miniTile(value: (interval % 86400) / 3600, label: store.tr("STD", "HRS"))
+                                miniTile(value: (interval % 3600) / 60, label: "MIN")
+                                miniTile(value: interval % 60, label: store.tr("SEK", "SEC"))
                             }
-                            Text("bis zum Launch um Mitternacht 🎮")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
                         }
                     }
+                    HStack(spacing: 6) {
+                        Text(store.tr("Zum großen Countdown: Gesamtstunden, Minuten, Zeitzonen & mehr", "Open the big countdown: total hours, minutes, time zones & more"))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.6))
+                        Image(systemName: "chevron.right")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(Vice.coral)
+                    }
                 }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(20)
         }
+        .buttonStyle(.plain)
     }
 
-    private func timeTile(value: Int, label: String) -> some View {
-        VStack(spacing: 2) {
+    private func miniTile(value: Int, label: String) -> some View {
+        VStack(spacing: 1) {
             Text(String(format: "%02d", value))
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                .font(.system(size: 24, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.white)
             Text(label)
                 .font(.caption2.weight(.bold))
-                .tracking(1.5)
+                .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.55))
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .glassPillTile()
-    }
-
-    private var milestones: some View {
-        GlassCard {
-            VStack(spacing: 0) {
-                milestoneRow(icon: "arrow.down.circle.fill", title: "Preload startet", date: GTA6.preloadDate, color: Vice.orange)
-                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 52)
-                milestoneRow(icon: "gamecontroller.fill", title: "Release — GTA 6", date: GTA6.releaseDate, color: Vice.pink)
-            }
-            .padding(.vertical, 6)
+        .padding(.vertical, 8)
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(.clear)
+                .glassEffect(.regular.tint(.white.opacity(0.06)), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
     }
 
-    private func milestoneRow(icon: String, title: String, date: Date, color: Color) -> some View {
-        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: date)).day ?? 0
-        return HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .frame(width: 28)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                Text(date, format: .dateTime.day().month(.wide).year().locale(Locale(identifier: "de_DE")))
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.55))
-            }
-            Spacer()
-            Text(days <= 0 ? "🎉" : "noch \(days) Tage")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white.opacity(0.85))
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-    }
+    // MARK: - Top-Meldung & Schnellzugriff
 
     private func topStory(_ item: NewsItem) -> some View {
         Button {
-            store.selectedTab = 2
+            store.selectedTab = 3
         } label: {
             GlassCard {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
-                        Text("TOP-MELDUNG")
+                        Text(store.tr("TOP-MELDUNG", "TOP STORY"))
                             .font(.caption2.weight(.bold)).tracking(1.5)
                             .foregroundStyle(.white.opacity(0.55))
                         Spacer()
@@ -154,8 +138,8 @@ struct HomeView: View {
 
     private var quickActions: some View {
         HStack(spacing: 12) {
-            quickButton(icon: "sparkles", title: "Mochi fragen", tab: 1)
-            quickButton(icon: "photo.on.rectangle.angled", title: "Screenshots", tab: 3)
+            quickButton(icon: "sparkles", title: store.tr("Mochi fragen", "Ask Mochi"), tab: 2)
+            quickButton(icon: "photo.on.rectangle.angled", title: "Screenshots", tab: 4)
         }
     }
 
@@ -176,34 +160,89 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
 
-    private func countdownParts(to target: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
-        let interval = max(0, Int(target.timeIntervalSince(now)))
-        return (interval / 86400, (interval % 86400) / 3600, (interval % 3600) / 60, interval % 60)
+    // MARK: - Leonida-Orakel (das Spielerische 🔮)
+
+    private var oracleLines: [String] {
+        store.language == "en" ? [
+            "A man named Brian will owe you money soon. Don't forget to collect. 💸",
+            "The stars whisper: today is a perfect day for one last lap around Los Santos. 🫡",
+            "VCPD warning: your wanted level rises every time you check the countdown. Keep going. ⭐",
+            "An alligator will cross your path today. Drive slow, windows up. 🐊",
+            "Lucia says: never trust anyone who says “just popping into the store”. 🤨",
+            "Your lucky spot today: Port Gellhorn at sunset. 🌅",
+            "Jason dreams of a quiet life. The oracle laughs softly. 😌",
+            "Tonight in Vice City: 31 degrees, 0% rain, 100% neon. 🌴",
+            "A stranger in Mount Kalaga knows your name. Do not get out of the car. 🏔️",
+            "The cards say: the preload will run like butter. Trust the process. 🧈",
+            "Boobie Ike is planning something big. You're invited — probably. 🎉",
+            "Heads up, Leonida Keys: the bridges are long, the tank is short. Fuel up first. ⛽",
+        ] : [
+            "Ein Mann namens Brian wird dir bald Geld schulden. Eintreiben nicht vergessen. 💸",
+            "Die Sterne flüstern: Heute ist ein perfekter Tag für eine letzte Runde Los Santos. 🫡",
+            "VCPD-Warnung: Dein Wanted-Level steigt jedes Mal, wenn du den Countdown checkst. Weiter so. ⭐",
+            "Ein Alligator wird heute deinen Weg kreuzen. Langsam fahren, Fenster zu. 🐊",
+            "Lucia sagt: Vertrau niemandem, der sagt „bin nur kurz im Laden“. 🤨",
+            "Dein Glücksort heute: Port Gellhorn bei Sonnenuntergang. 🌅",
+            "Jason träumt von einem ruhigen Leben. Das Orakel lacht leise. 😌",
+            "Heute Nacht in Vice City: 31 Grad, 0 % Regen, 100 % Neon. 🌴",
+            "Ein Fremder in Mount Kalaga kennt deinen Namen. Steig nicht aus. 🏔️",
+            "Die Karten sagen: Der Preload wird laufen wie Butter. Vertrau dem Prozess. 🧈",
+            "Boobie Ike plant was Großes. Du bist eingeladen — wahrscheinlich. 🎉",
+            "Achtung, Leonida Keys: Die Brücken sind lang, der Tank ist kurz. Vorher tanken. ⛽",
+        ]
     }
 
-    private func countdownParts(from start: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
-        let interval = max(0, Int(now.timeIntervalSince(start)))
-        return (interval / 86400, (interval % 86400) / 3600, (interval % 3600) / 60, interval % 60)
-    }
-
-    /// QA darf den Post-Release-Zustand vorab sehen (-QAPreviewReleased);
-    /// im Release-Build ist das immer die echte Zeit.
-    private func effectiveNow(_ date: Date) -> Date {
-        #if QA
-        if ProcessInfo.processInfo.arguments.contains("-QAPreviewReleased") {
-            return GTA6.releaseDate.addingTimeInterval(2 * 86400 + 5 * 3600 + 12 * 60)
-        }
-        #endif
-        return date
-    }
-}
-
-private extension View {
-    func glassPillTile() -> some View {
-        self.background {
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(.clear)
-                .glassEffect(.regular.tint(.white.opacity(0.06)), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+    private var oracleCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(store.tr("DEIN LEONIDA-ORAKEL 🔮", "YOUR LEONIDA ORACLE 🔮"))
+                    .font(.caption2.weight(.bold)).tracking(1.5)
+                    .foregroundStyle(.white.opacity(0.55))
+                if let index = oracleIndex, oracleLines.indices.contains(index) {
+                    HStack(spacing: 3) {
+                        Text(store.tr("Wanted-Level deiner Vorfreude:", "Your hype wanted level:"))
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.6))
+                        ForEach(0..<5, id: \.self) { star in
+                            Image(systemName: star < oracleStars ? "star.fill" : "star")
+                                .font(.caption2)
+                                .foregroundStyle(star < oracleStars ? Vice.orange : .white.opacity(0.3))
+                        }
+                    }
+                    Text(oracleLines[index])
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .transition(.opacity)
+                } else {
+                    Text(store.tr(
+                        "Was hält Leonida heute für dich bereit? Das Orakel kennt jeden Trailer-Frame — und es hat Humor.",
+                        "What does Leonida have in store for you today? The oracle knows every trailer frame — and it has a sense of humor."
+                    ))
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.75))
+                }
+                Button {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        var next = Int.random(in: 0..<oracleLines.count)
+                        if let current = oracleIndex, oracleLines.count > 1 {
+                            while next == current { next = Int.random(in: 0..<oracleLines.count) }
+                        }
+                        oracleIndex = next
+                        oracleStars = Int.random(in: 1...5)
+                    }
+                } label: {
+                    Text(oracleIndex == nil ? store.tr("Orakel fragen 🔮", "Ask the oracle 🔮") : store.tr("Nochmal fragen", "Ask again"))
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(Vice.sunset))
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

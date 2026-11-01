@@ -21,23 +21,29 @@ struct ContentView: View {
             AppBackdrop()
             TabView(selection: $store.selectedTab) {
                 HomeView()
-                    .tabItem { Label("Start", systemImage: "house.fill") }
+                    .tabItem { Label(store.tr("Start", "Start"), systemImage: "house.fill") }
                     .tag(0)
-                ChatView()
-                    .tabItem { Label("KI-Chat", systemImage: "sparkles") }
+                CountdownView()
+                    .tabItem { Label("GTA 6 Countdown", systemImage: "timer") }
                     .tag(1)
+                ChatView()
+                    .tabItem { Label(store.tr("KI-Chat", "AI Chat"), systemImage: "sparkles") }
+                    .tag(2)
                 NewsView()
                     .tabItem { Label("News", systemImage: "newspaper.fill") }
-                    .tag(2)
-                GalleryView()
-                    .tabItem { Label("Galerie", systemImage: "photo.on.rectangle.angled") }
                     .tag(3)
-                NostalgiaView()
-                    .tabItem { Label("Nostalgie", systemImage: "heart.fill") }
+                GalleryView()
+                    .tabItem { Label(store.tr("Galerie", "Gallery"), systemImage: "photo.on.rectangle.angled") }
                     .tag(4)
-                SettingsView()
-                    .tabItem { Label("Mehr", systemImage: "gearshape.fill") }
+                MapView()
+                    .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(5)
+                NostalgiaView()
+                    .tabItem { Label(store.tr("Nostalgie", "Nostalgia"), systemImage: "heart.fill") }
+                    .tag(6)
+                SettingsView()
+                    .tabItem { Label(store.tr("Mehr", "More"), systemImage: "gearshape.fill") }
+                    .tag(7)
             }
             .tint(Vice.coral)
             #if QA
