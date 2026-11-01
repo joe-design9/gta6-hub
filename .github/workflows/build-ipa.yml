@@ -47,21 +47,24 @@ jobs:
             find build -name "*.app" -maxdepth 5
             exit 1
           fi
-          rm -rf Payload GTA6Hub-1.0.0.ipa
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP_PATH/Info.plist")
+          IPA_NAME="GTA6Hub-$VERSION.ipa"
+          echo "IPA_NAME=$IPA_NAME" >> "$GITHUB_ENV"
+          rm -rf Payload "$IPA_NAME"
           mkdir Payload
           cp -R "$APP_PATH" Payload/
-          zip -qry GTA6Hub-1.0.0.ipa Payload
-          ls -lh GTA6Hub-1.0.0.ipa
+          zip -qry "$IPA_NAME" Payload
+          ls -lh "$IPA_NAME"
 
       - name: Upload IPA as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: GTA6Hub-ipa
-          path: GTA6Hub-1.0.0.ipa
+          path: ${{ env.IPA_NAME }}
           if-no-files-found: error
 
       - name: Attach IPA to the GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: GTA6Hub-1.0.0.ipa
+          files: ${{ env.IPA_NAME }}
