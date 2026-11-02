@@ -148,6 +148,10 @@ struct VicePage<Content: View>: View {
             AppBackdrop()
             content
         }
+        // ScrollViews/Listen malen sonst ihr eigenes (schwarzes)
+        // System-Hintergrund über die Kulisse — ausblenden, damit der
+        // Vice-City-Hintergrund durchscheint.
+        .scrollContentBackground(.hidden)
     }
 }
 
