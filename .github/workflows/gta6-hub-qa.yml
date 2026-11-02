@@ -1,6 +1,11 @@
 name: GTA 6 Hub QA
 on:
   workflow_dispatch:
+    inputs:
+      icon_repro:
+        description: "Also build v1.1.0 and test the over-install icon"
+        type: boolean
+        default: false
 jobs:
   qa:
     name: Simulator QA screenshots
@@ -8,6 +13,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Check out v1.1.0 (icon over-install repro)
+        if: inputs.icon_repro
+        uses: actions/checkout@v4
+        with:
+          ref: v1.1.0
+          path: old-src
       - name: Select latest stable Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
@@ -20,6 +31,18 @@ jobs:
             -configuration QA \
             -sdk iphonesimulator \
             -derivedDataPath "$PWD/build-qa" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+      - name: Build v1.1.0 QA (icon repro)
+        if: inputs.icon_repro
+        run: |
+          xcodebuild \
+            -project old-src/GTA6Hub.xcodeproj \
+            -scheme GTA6Hub \
+            -configuration QA \
+            -sdk iphonesimulator \
+            -derivedDataPath "$PWD/build-old" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             build
@@ -41,6 +64,26 @@ jobs:
             exit 1
           fi
           xcrun simctl install booted "$APP_PATH"
+      - name: Icon diagnostics + home screen (fresh install)
+        run: |
+          mkdir -p shots
+          APP_PATH="build-qa/Build/Products/QA-iphonesimulator/GTA6Hub.app"
+          (xcrun assetutil --info "$APP_PATH/Assets.car" || assetutil --info "$APP_PATH/Assets.car" || echo "assetutil not found") > shots/icon-info.txt 2>&1 || true
+          sleep 2
+          xcrun simctl io booted screenshot shots/icon-home-fresh.png
+      - name: Icon over-install repro (v1.1.0 to current)
+        if: inputs.icon_repro
+        run: |
+          OLD_APP="build-old/Build/Products/QA-iphonesimulator/GTA6Hub.app"
+          APP_PATH="build-qa/Build/Products/QA-iphonesimulator/GTA6Hub.app"
+          xcrun simctl uninstall booted dev.joe.gta6hub || true
+          xcrun simctl install booted "$OLD_APP"
+          xcrun simctl launch booted dev.joe.gta6hub || true
+          sleep 3
+          xcrun simctl install booted "$APP_PATH"
+          xcrun simctl terminate booted dev.joe.gta6hub || true
+          sleep 2
+          xcrun simctl io booted screenshot shots/icon-home-overinstall.png
       - name: Capture screenshots
         run: |
           mkdir -p shots
