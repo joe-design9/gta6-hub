@@ -52,6 +52,8 @@ struct NewsView: View {
             .padding(.bottom, 24)
         }
         .refreshable { await store.loadNews(force: true) }
+        .scrollContentBackground(.hidden)
+        .background { AppBackdrop() }
     }
 
     private func newsCard(_ item: NewsItem) -> some View {

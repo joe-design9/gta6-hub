@@ -57,6 +57,8 @@ struct ChatView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
+            .scrollContentBackground(.hidden)
+            .background { AppBackdrop() }
             .onTapGesture { inputFocused = false }
             .onChange(of: store.messages.count) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) { proxy.scrollTo("bottom", anchor: .bottom) }

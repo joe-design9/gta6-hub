@@ -24,6 +24,8 @@ struct HomeView: View {
             }
             .navigationTitle(store.tr("Moin Joel 👋", "Hey Joel 👋"))
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background { AppBackdrop() }
             .task { await store.loadNews() }
         }
     }

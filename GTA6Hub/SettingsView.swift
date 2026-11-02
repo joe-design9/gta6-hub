@@ -20,6 +20,8 @@ struct SettingsView: View {
             }
             .navigationTitle(store.tr("Mehr", "More"))
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background { AppBackdrop() }
             .onAppear { keyDraft = store.nvidiaKey }
         }
     }

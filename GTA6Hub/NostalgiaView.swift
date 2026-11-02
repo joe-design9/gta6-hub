@@ -46,6 +46,8 @@ struct NostalgiaView: View {
             }
             .navigationTitle(store.tr("Nostalgie", "Nostalgia"))
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background { AppBackdrop() }
         }
     }
 

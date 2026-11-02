@@ -26,6 +26,8 @@ struct CountdownView: View {
             }
             .navigationTitle("GTA 6 Countdown")
             .navigationBarTitleDisplayMode(.large)
+            .scrollContentBackground(.hidden)
+            .background { AppBackdrop() }
         }
     }
 
