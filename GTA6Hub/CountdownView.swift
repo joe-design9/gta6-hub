@@ -12,6 +12,9 @@ struct CountdownView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     countdownCard
+                    if EffectiveNow.value(Date()) < GTA6.releaseDate {
+                        preloadCard
+                    }
                     totalsCard
                     progressCard
                     milestones
@@ -94,6 +97,51 @@ struct CountdownView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(.clear)
                 .glassEffect(.regular.tint(.white.opacity(0.06)), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+
+    // MARK: - Preload-Countdown (12.11.2026, lokale Mitternacht)
+
+    private var preloadCard: some View {
+        GlassCard {
+            VStack(spacing: 14) {
+                HStack {
+                    Text("PRELOAD")
+                        .font(.caption.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(Vice.sunset)
+                    Spacer()
+                    Text("12.11.2026")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    let now = EffectiveNow.value(context.date)
+                    VStack(spacing: 14) {
+                        if now >= GTA6.preloadDate {
+                            Text(store.tr("DER PRELOAD LÄUFT 🎉", "THE PRELOAD IS LIVE 🎉"))
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Vice.sunset)
+                            Text(store.tr("GTA 6 lädt auf deiner PS5 — alles bereit für den Launch um Mitternacht 🌴", "GTA 6 is downloading on your PS5 — all set for the midnight launch 🌴"))
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.75))
+                                .multilineTextAlignment(.center)
+                        } else {
+                            let parts = parts(to: GTA6.preloadDate, now: now)
+                            HStack(spacing: 10) {
+                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
+                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
+                                timeTile(value: parts.minutes, label: "MIN")
+                                timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                            }
+                            Text(store.tr("bis zum Preload um Mitternacht — dann zieht deine PS5 den Download 📥", "until the midnight preload — then your PS5 grabs the download 📥"))
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.75))
+                        }
+                    }
+                }
+            }
+            .padding(20)
         }
     }
 
@@ -227,7 +275,7 @@ struct CountdownView: View {
                 .frame(width: 28)
             VStack(alignment: .leading, spacing: 1) {
                 Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                Text(date, format: .dateTime.day().month(.wide).year().locale(Lang.locale))
+                Text(longDate(date))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.55))
             }
@@ -359,6 +407,16 @@ struct CountdownView: View {
     }
 
     // MARK: - Helfer
+
+    /// Langes Datum in der App-Sprache (der FormatStyle-Pfad ignorierte die
+    /// Locale auf echten Geräten und zeigte US-Format trotz Deutsch).
+    private func longDate(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Lang.locale
+        f.dateStyle = .long
+        f.timeStyle = .none
+        return f.string(from: date)
+    }
 
     private func parts(to target: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
         let interval = max(0, Int(target.timeIntervalSince(now)))
