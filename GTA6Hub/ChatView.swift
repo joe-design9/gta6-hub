@@ -6,15 +6,25 @@ struct ChatView: View {
     @FocusState private var inputFocused: Bool
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                engineBar
-                messagesArea
-                inputBar
-            }
-            .navigationTitle(store.tr("KI-Chat", "AI Chat"))
-            .navigationBarTitleDisplayMode(.inline)
+        // KEIN NavigationStack mehr (v1.1.2): dessen Container malte oben
+        // (Titelzeile) und unten (Eingabeleiste) Schwarz über die Kulisse —
+        // Joels gemeldete „schwarze Ränder". Jetzt trägt der ganze Chat
+        // EINE durchgehende Vice-City-Kulisse, Titel als eigene Zeile.
+        VStack(spacing: 0) {
+            titleBar
+            engineBar
+            messagesArea
+            inputBar
         }
+        .background { AppBackdrop() }
+    }
+
+    private var titleBar: some View {
+        Text(store.tr("KI-Chat", "AI Chat"))
+            .font(.system(size: 17, weight: .semibold))
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
     }
 
     private var engineBar: some View {
@@ -58,7 +68,6 @@ struct ChatView: View {
             }
             .scrollDismissesKeyboard(.interactively)
             .scrollContentBackground(.hidden)
-            .background { AppBackdrop() }
             .onTapGesture { inputFocused = false }
             .onChange(of: store.messages.count) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) { proxy.scrollTo("bottom", anchor: .bottom) }
