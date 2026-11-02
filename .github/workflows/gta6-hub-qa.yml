@@ -93,6 +93,7 @@ jobs:
             sleep 5
             xcrun simctl io booted screenshot "shots/$name.png"
           }
+          capture onboarding -QAOnboarding
           capture home -UITestMode
           capture countdown -UITestMode -QAStartTab 1
           capture chat -UITestMode -QAStartTab 2
