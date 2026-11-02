@@ -103,6 +103,8 @@ jobs:
           capture nostalgia -UITestMode -QAStartTab 6
           capture settings -UITestMode -QAStartTab 7
           capture chat-empty -QAStartTab 2
+          capture tips -UITestMode -QATips
+          capture tips-scrolled -UITestMode -QATipsScrolled
           capture home-real
           capture countdown-released -UITestMode -QAStartTab 1 -QAPreviewReleased
           ls -la shots
