@@ -19,24 +19,26 @@ enum Vice {
 /// die Farben. Als Canvas gezeichnet, damit es auf jedem Screen gleich
 /// satt aussieht (der alte Verlauf war auf echten Geräten fast schwarz).
 struct AppBackdrop: View {
-    var body: some View {
-        Canvas { context, size in
-            let w = size.width
-            let h = size.height
-            let full = Path(CGRect(x: 0, y: 0, width: w, height: h))
-            let silhouette = Color(red: 0.05, green: 0.01, blue: 0.10)
+    /// Himmel: Violett → Magenta → Koralle → Gold → Dämmerung.
+    static var skyGradient: LinearGradient {
+        LinearGradient(stops: [
+            .init(color: Color(red: 0.16, green: 0.06, blue: 0.38), location: 0.0),
+            .init(color: Color(red: 0.40, green: 0.14, blue: 0.60), location: 0.30),
+            .init(color: Color(red: 0.86, green: 0.26, blue: 0.55), location: 0.52),
+            .init(color: Color(red: 1.00, green: 0.45, blue: 0.34), location: 0.68),
+            .init(color: Color(red: 1.00, green: 0.66, blue: 0.30), location: 0.80),
+            .init(color: Color(red: 0.44, green: 0.16, blue: 0.38), location: 0.88),
+            .init(color: Color(red: 0.09, green: 0.03, blue: 0.15), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+    }
 
-            // Himmel: Violett → Magenta → Koralle → Gold → Dämmerung.
-            let sky = Gradient(stops: [
-                .init(color: Color(red: 0.16, green: 0.06, blue: 0.38), location: 0.0),
-                .init(color: Color(red: 0.40, green: 0.14, blue: 0.60), location: 0.30),
-                .init(color: Color(red: 0.86, green: 0.26, blue: 0.55), location: 0.52),
-                .init(color: Color(red: 1.00, green: 0.45, blue: 0.34), location: 0.68),
-                .init(color: Color(red: 1.00, green: 0.66, blue: 0.30), location: 0.80),
-                .init(color: Color(red: 0.44, green: 0.16, blue: 0.38), location: 0.88),
-                .init(color: Color(red: 0.09, green: 0.03, blue: 0.15), location: 1.0),
-            ])
-            context.fill(full, with: .linearGradient(sky, startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h)))
+    var body: some View {
+        ZStack {
+            Self.skyGradient
+            Canvas { context, size in
+                let w = size.width
+                let h = size.height
+                let silhouette = Color(red: 0.05, green: 0.01, blue: 0.10)
 
             // Sonne: Glow + Kern, tief über dem Horizont.
             let sunCenter = CGPoint(x: w * 0.52, y: h * 0.70)
@@ -67,6 +69,7 @@ struct AppBackdrop: View {
             context.fill(shade, with: .linearGradient(
                 Gradient(colors: [Color.black.opacity(0.18), .clear]),
                 startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h * 0.16)))
+            }
         }
         .ignoresSafeArea()
     }
@@ -131,6 +134,20 @@ struct AppBackdrop: View {
         bird.addQuadCurve(to: CGPoint(x: center.x + scale, y: center.y),
                           control: CGPoint(x: center.x + scale * 0.5, y: center.y - scale * 0.55))
         context.stroke(bird, with: .color(color), style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
+    }
+}
+
+/// Verpackt eine Tab-Seite mit dem Vice-City-Hintergrund INNERHALB der Seite.
+/// (Ein Backdrop hinter der TabView wird von deren Container verdeckt —
+/// deshalb bekommt jede Seite ihre eigene Kulisse.)
+struct VicePage<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ZStack {
+            AppBackdrop()
+            content
+        }
     }
 }
 

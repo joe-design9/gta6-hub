@@ -18,30 +18,29 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            AppBackdrop()
             TabView(selection: $store.selectedTab) {
-                HomeView()
+                VicePage { HomeView() }
                     .tabItem { Label(store.tr("Start", "Start"), systemImage: "house.fill") }
                     .tag(0)
-                CountdownView()
+                VicePage { CountdownView() }
                     .tabItem { Label("GTA 6 Countdown", systemImage: "timer") }
                     .tag(1)
-                ChatView()
+                VicePage { ChatView() }
                     .tabItem { Label(store.tr("KI-Chat", "AI Chat"), systemImage: "sparkles") }
                     .tag(2)
-                NewsView()
+                VicePage { NewsView() }
                     .tabItem { Label("News", systemImage: "newspaper.fill") }
                     .tag(3)
-                GalleryView()
+                VicePage { GalleryView() }
                     .tabItem { Label(store.tr("Galerie", "Gallery"), systemImage: "photo.on.rectangle.angled") }
                     .tag(4)
-                MapView()
+                VicePage { MapView() }
                     .tabItem { Label("Map", systemImage: "map.fill") }
                     .tag(5)
-                NostalgiaView()
+                VicePage { NostalgiaView() }
                     .tabItem { Label(store.tr("Nostalgie", "Nostalgia"), systemImage: "heart.fill") }
                     .tag(6)
-                SettingsView()
+                VicePage { SettingsView() }
                     .tabItem { Label(store.tr("Mehr", "More"), systemImage: "gearshape.fill") }
                     .tag(7)
             }
