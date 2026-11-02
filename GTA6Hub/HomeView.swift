@@ -22,7 +22,7 @@ struct HomeView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 24)
             }
-            .navigationTitle(store.tr("Moin Joel 👋", "Hey Joel 👋"))
+            .navigationTitle(store.greeting)
             .navigationBarTitleDisplayMode(.large)
             .scrollContentBackground(.hidden)
             .background { AppBackdrop() }
@@ -140,7 +140,7 @@ struct HomeView: View {
 
     private var quickActions: some View {
         HStack(spacing: 12) {
-            quickButton(icon: "sparkles", title: store.tr("Mochi fragen", "Ask Mochi"), tab: 2)
+            quickButton(icon: "sparkles", title: store.tr("\(store.assistantDisplayName) fragen", "Ask \(store.assistantDisplayName)"), tab: 2)
             quickButton(icon: "photo.on.rectangle.angled", title: "Screenshots", tab: 4)
         }
     }

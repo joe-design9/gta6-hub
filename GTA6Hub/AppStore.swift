@@ -12,6 +12,35 @@ final class AppStore: ObservableObject {
     @Published var newsUpdated: Date?
     @Published var nvidiaKey: String = ""
     @Published var language: String = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
+    @Published var userName: String = UserDefaults.standard.string(forKey: "userName") ?? ""
+    @Published var assistantName: String = UserDefaults.standard.string(forKey: "assistantName") ?? ""
+    @Published var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "hasOnboarded")
+
+    /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
+    /// beim ersten Start (oder unter „Mehr") einen eigenen wählt.
+    var assistantDisplayName: String {
+        let t = assistantName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return t.isEmpty ? "Mochi" : t
+    }
+
+    /// Begrüßung auf der Startseite — mit dem Namen des Nutzers, wenn gesetzt.
+    var greeting: String {
+        let t = userName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return t.isEmpty ? tr("Moin 👋", "Hey 👋") : tr("Moin \(t) 👋", "Hey \(t) 👋")
+    }
+
+    func saveNames(userName newUserName: String, assistantName newAssistantName: String) {
+        userName = newUserName.trimmingCharacters(in: .whitespacesAndNewlines)
+        assistantName = newAssistantName.trimmingCharacters(in: .whitespacesAndNewlines)
+        UserDefaults.standard.set(userName, forKey: "userName")
+        UserDefaults.standard.set(assistantName, forKey: "assistantName")
+    }
+
+    func completeOnboarding(userName newUserName: String, assistantName newAssistantName: String) {
+        saveNames(userName: newUserName, assistantName: newAssistantName)
+        hasOnboarded = true
+        UserDefaults.standard.set(true, forKey: "hasOnboarded")
+    }
 
     /// Kurzer Sprachhelfer für alle Views: tr("Deutsch", "English").
     func tr(_ de: String, _ en: String) -> String { language == "en" ? en : de }
@@ -33,6 +62,9 @@ final class AppStore: ObservableObject {
         if let idx = args.firstIndex(of: "-QAStartTab"), idx + 1 < args.count, let tab = Int(args[idx + 1]) {
             selectedTab = tab
         }
+        // Onboarding im QA-Build nur für die eigene Aufnahme zeigen,
+        // sonst würde es alle anderen Screenshots blockieren.
+        hasOnboarded = !args.contains("-QAOnboarding")
         seedUITestDataIfRequested()
         #endif
     }
@@ -58,7 +90,7 @@ final class AppStore: ObservableObject {
         let key = nvidiaKey.isEmpty ? nil : nvidiaKey
         Task {
             do {
-                let answer = try await AIService.reply(history: history, nvidiaKey: key)
+                let answer = try await AIService.reply(history: history, nvidiaKey: key, assistantName: assistantDisplayName, userName: userName)
                 messages.append(ChatMessage(role: .assistant, text: answer))
             } catch {
                 messages.append(ChatMessage(role: .assistant, text: tr("Da ist was schiefgelaufen — prüf kurz deine Verbindung oder den NVIDIA-Key in den Einstellungen und versuch's nochmal.", "Something went wrong — check your connection or the NVIDIA key in Settings and try again.")))

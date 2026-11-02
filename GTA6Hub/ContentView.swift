@@ -45,6 +45,11 @@ struct ContentView: View {
                     .tag(7)
             }
             .tint(Vice.coral)
+            if !store.hasOnboarded {
+                OnboardingView()
+                    .transition(.opacity)
+                    .zIndex(2)
+            }
             #if QA
             QABadge()
             #endif

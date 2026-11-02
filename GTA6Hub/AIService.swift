@@ -18,20 +18,25 @@ enum AIEngineKind: Equatable {
 }
 
 enum AIService {
-    static var systemPrompt: String {
+    /// System-Prompt mit den Namen aus dem Onboarding: Der Assistent heißt,
+    /// wie der Nutzer ihn genannt hat (Standard: Mochi).
+    static func systemPrompt(assistantName: String, userName: String) -> String {
+        let user = userName.trimmingCharacters(in: .whitespacesAndNewlines)
         if Lang.isEN {
+            let nameLine = user.isEmpty ? "" : " The user is called \(user) — address them by name now and then."
             return """
-            You are Mochi, a friendly, easygoing AI companion in Joel's personal GTA 6 Hub app. \
+            You are \(assistantName), a friendly, easygoing AI companion in the GTA 6 Hub app.\(nameLine) \
             Reply in English, short and helpful, with a wink but no rambling. \
             Key facts: GTA 6 launches on November 19, 2026 for PS5 and Xbox Series X|S, \
-            preload starts November 12, 2026. Joel pre-ordered the Ultimate Edition on PS5.
+            preload starts November 12, 2026.
             """
         }
+        let nameLine = user.isEmpty ? "" : " Der Nutzer heißt \(user) — sprich ihn gern ab und zu mit Namen an."
         return """
-        Du bist Mochi, ein freundlicher, lockerer KI-Begleiter in Joels persönlichen GTA 6 Hub App. \
+        Du bist \(assistantName), ein freundlicher, lockerer KI-Begleiter in der GTA 6 Hub App.\(nameLine) \
         Antworte auf Deutsch, kurz und hilfreich, gern mit einem Augenzwinkern, aber ohne Geschwafel. \
         Wichtigste Fakten: GTA 6 erscheint am 19. November 2026 für PS5 und Xbox Series X|S, \
-        der Preload startet am 12. November 2026. Joel hat die Ultimate Edition auf PS5 vorbestellt.
+        der Preload startet am 12. November 2026.
         """
     }
 
@@ -51,12 +56,12 @@ enum AIService {
         #endif
     }
 
-    static func reply(history: [ChatMessage], nvidiaKey: String?) async throws -> String {
+    static func reply(history: [ChatMessage], nvidiaKey: String?, assistantName: String, userName: String) async throws -> String {
         switch activeEngine(nvidiaKey: nvidiaKey) {
         case .nvidia:
-            return try await nimReply(history: history, apiKey: nvidiaKey ?? "")
+            return try await nimReply(history: history, apiKey: nvidiaKey ?? "", assistantName: assistantName, userName: userName)
         case .apple:
-            return try await appleReply(history: history)
+            return try await appleReply(history: history, assistantName: assistantName, userName: userName)
         case .demo:
             return demoReply(history: history)
         }
@@ -64,12 +69,13 @@ enum AIService {
 
     // MARK: - Apple Intelligence (on-device)
 
-    private static func appleReply(history: [ChatMessage]) async throws -> String {
+    private static func appleReply(history: [ChatMessage], assistantName: String, userName: String) async throws -> String {
         #if canImport(FoundationModels)
-        let session = LanguageModelSession(instructions: systemPrompt)
+        let session = LanguageModelSession(instructions: systemPrompt(assistantName: assistantName, userName: userName))
+        let userLabel = userName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "User" : userName
         let prompt = history.suffix(6).map { msg in
-            (msg.role == .user ? "Joel: " : "Mochi: ") + msg.text
-        }.joined(separator: "\n") + "\nMochi:"
+            (msg.role == .user ? "\(userLabel): " : "\(assistantName): ") + msg.text
+        }.joined(separator: "\n") + "\n\(assistantName):"
         let response = try await session.respond(to: prompt)
         return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
         #else
@@ -95,8 +101,8 @@ enum AIService {
         let choices: [Choice]
     }
 
-    private static func nimReply(history: [ChatMessage], apiKey: String) async throws -> String {
-        var messages: [NIMRequest.Message] = [.init(role: "system", content: systemPrompt)]
+    private static func nimReply(history: [ChatMessage], apiKey: String, assistantName: String, userName: String) async throws -> String {
+        var messages: [NIMRequest.Message] = [.init(role: "system", content: systemPrompt(assistantName: assistantName, userName: userName))]
         for msg in history.suffix(10) {
             messages.append(.init(role: msg.role == .user ? "user" : "assistant", content: msg.text))
         }

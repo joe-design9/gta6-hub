@@ -4,11 +4,14 @@ struct SettingsView: View {
     @EnvironmentObject private var store: AppStore
     @Environment(\.openURL) private var openURL
     @State private var keyDraft = ""
+    @State private var userNameDraft = ""
+    @State private var assistantNameDraft = ""
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    assistantCard
                     languageCard
                     engineCard
                     keyCard
@@ -22,7 +25,58 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.large)
             .scrollContentBackground(.hidden)
             .background { AppBackdrop() }
-            .onAppear { keyDraft = store.nvidiaKey }
+            .onAppear {
+                keyDraft = store.nvidiaKey
+                userNameDraft = store.userName
+                assistantNameDraft = store.assistantName
+            }
+        }
+    }
+
+    // MARK: - Dein Assistent (Namen aus dem Onboarding)
+
+    private var assistantCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(store.tr("DEIN ASSISTENT", "YOUR ASSISTANT"))
+                    .font(.caption2.weight(.bold)).tracking(1.5)
+                    .foregroundStyle(.white.opacity(0.55))
+                nameField(label: store.tr("Dein Name", "Your name"), placeholder: store.tr("Dein Name", "Your name"), text: $userNameDraft)
+                nameField(label: store.tr("Name deines Assistenten", "Your assistant's name"), placeholder: "Mochi", text: $assistantNameDraft)
+                HStack {
+                    Button(store.tr("Speichern", "Save")) {
+                        store.saveNames(userName: userNameDraft, assistantName: assistantNameDraft)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 9)
+                    .background(Capsule().fill(Color.white))
+                    Spacer()
+                }
+                Text(store.tr(
+                    "Die Namen stehen in der Begrüßung, im Chat und in jeder Antwort deines Assistenten.",
+                    "The names appear in the greeting, in the chat and in every reply from your assistant."
+                ))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.55))
+            }
+            .padding(18)
+        }
+    }
+
+    private func nameField(label: String, placeholder: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.7))
+            TextField(placeholder, text: text)
+                .foregroundStyle(.white)
+                .tint(.white)
+                .autocorrectionDisabled()
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .glassPill()
         }
     }
 
@@ -117,8 +171,8 @@ struct SettingsView: View {
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
                 Text(store.tr(
-                    "Optional: Mit deinem eigenen NVIDIA-Key (derselbe wie bei Hermes) chattet Mochi mit dem großen Nemotron-Modell statt mit der Geräte-KI. Der Key bleibt nur in deiner Keychain auf diesem iPhone.",
-                    "Optional: with your own NVIDIA key (the same one as Hermes), Mochi chats with the big Nemotron model instead of the on-device AI. The key stays only in your Keychain on this iPhone."
+                    "Optional: Mit deinem eigenen NVIDIA-Key chattet \(store.assistantDisplayName) mit dem großen Nemotron-Modell statt mit der Geräte-KI. Der Key bleibt nur in deiner Keychain auf diesem iPhone.",
+                    "Optional: with your own NVIDIA key, \(store.assistantDisplayName) chats with the big Nemotron model instead of the on-device AI. The key stays only in your Keychain on this iPhone."
                 ))
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.6))

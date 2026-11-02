@@ -75,7 +75,7 @@ struct ChatView: View {
                 .font(.system(size: 44))
                 .foregroundStyle(.white.opacity(0.9))
                 .padding(.top, 60)
-            Text(store.tr("Frag Mochi was", "Ask Mochi anything"))
+            Text(store.tr("Frag \(store.assistantDisplayName) was", "Ask \(store.assistantDisplayName) anything"))
                 .font(.title3.weight(.bold))
                 .foregroundStyle(.white)
             Text(store.tr("Countdown, News, Vice City — oder einfach quatschen.", "Countdown, news, Vice City — or just chat."))
@@ -148,7 +148,7 @@ struct ChatView: View {
 
     private var inputBar: some View {
         HStack(spacing: 10) {
-            TextField(store.tr("Nachricht an Mochi …", "Message Mochi …"), text: $draft, axis: .vertical)
+            TextField(store.tr("Nachricht an \(store.assistantDisplayName) …", "Message \(store.assistantDisplayName) …"), text: $draft, axis: .vertical)
                 .lineLimit(1...4)
                 .foregroundStyle(.white)
                 .tint(.white)
