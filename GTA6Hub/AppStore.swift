@@ -15,6 +15,11 @@ final class AppStore: ObservableObject {
     @Published var userName: String = UserDefaults.standard.string(forKey: "userName") ?? ""
     @Published var assistantName: String = UserDefaults.standard.string(forKey: "assistantName") ?? ""
     @Published var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "hasOnboarded")
+    #if QA
+    /// QA-Screenshots der Tipps-Ansicht (-QATips / -QATipsScrolled) —
+    /// nur im QA-Build vorhanden, Release kennt den Schalter nicht.
+    @Published var qaShowTips = false
+    #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
     /// beim ersten Start (oder unter „Mehr") einen eigenen wählt.
@@ -65,6 +70,8 @@ final class AppStore: ObservableObject {
         // Onboarding im QA-Build nur für die eigene Aufnahme zeigen,
         // sonst würde es alle anderen Screenshots blockieren.
         hasOnboarded = !args.contains("-QAOnboarding")
+        // Tipps-Ansicht für ihre QA-Aufnahmen direkt präsentieren.
+        qaShowTips = args.contains("-QATips") || args.contains("-QATipsScrolled")
         seedUITestDataIfRequested()
         #endif
     }

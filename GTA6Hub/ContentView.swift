@@ -54,6 +54,12 @@ struct ContentView: View {
             QABadge()
             #endif
         }
+        #if QA
+        // QA-Aufnahmen der Tipps-Ansicht: als Cover über dem Start-Tab.
+        .fullScreenCover(isPresented: $store.qaShowTips) {
+            NavigationStack { TipsView() }
+        }
+        #endif
     }
 }
 

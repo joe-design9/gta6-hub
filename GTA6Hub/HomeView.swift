@@ -16,6 +16,7 @@ struct HomeView: View {
                         topStory(top)
                     }
                     quickActions
+                    tipsCard
                     oracleCard
                 }
                 .padding(.horizontal, 16)
@@ -157,6 +158,49 @@ struct HomeView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Tipps & Tricks (Kommandozentrale, v1.2.0)
+
+    private var tipsCard: some View {
+        NavigationLink {
+            TipsView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("TIPPS & TRICKS", "TIPS & TRICKS"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("Die Kommandozentrale", "The command center"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Launch-Checklisten, Spoiler-Schutz & erste Schritte in Leonida — für alle, die im Spiel hängen.",
+                            "Launch checklists, spoiler protection & first steps in Leonida — for everyone who gets stuck."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .buttonStyle(.plain)

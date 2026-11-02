@@ -11,6 +11,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    tipsCard
                     assistantCard
                     languageCard
                     engineCard
@@ -31,6 +32,46 @@ struct SettingsView: View {
                 assistantNameDraft = store.assistantName
             }
         }
+    }
+
+    // MARK: - Tipps & Tricks (Kommandozentrale, v1.2.0)
+
+    private var tipsCard: some View {
+        NavigationLink {
+            TipsView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "lightbulb.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("Tipps & Tricks", "Tips & Tricks"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Die Kommandozentrale: Checklisten & Hilfe, wenn du im Spiel hängst.",
+                            "The command center: checklists & help when you get stuck in the game."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Dein Assistent (Namen aus dem Onboarding)
@@ -216,7 +257,7 @@ struct SettingsView: View {
                 Text(store.tr("ÜBER GTA 6 HUB", "ABOUT GTA 6 HUB"))
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
-                row("Version", "1.1.0")
+                row("Version", "1.2.0")
                 Divider().overlay(Color.white.opacity(0.12))
                 row(store.tr("Release GTA 6", "GTA 6 release"), store.tr("19. November 2026", "November 19, 2026"))
                 Divider().overlay(Color.white.opacity(0.12))
