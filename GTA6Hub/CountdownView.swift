@@ -417,6 +417,9 @@ struct CountdownView: View {
         f.locale = Lang.locale
         f.dateStyle = .long
         f.timeStyle = .none
+        // Die Meilenstein-Daten sind Berliner Mitternacht — in der
+        // Geräte-Zeitzone formatiert rutschten sie sonst einen Tag vor.
+        f.timeZone = TimeZone(identifier: "Europe/Berlin")
         return f.string(from: date)
     }
 
