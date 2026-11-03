@@ -138,14 +138,14 @@ final class AppStore: ObservableObject {
         guard args.contains("-UITestMode") else { return }
         messages = [
             ChatMessage(role: .user, text: "Wann kommt GTA 6 raus?"),
-            ChatMessage(role: .assistant, text: "Am 19. November 2026 ist es so weit — PS5 und Xbox Series X|S. Der Preload startet am 12. November, deine Ultimate Edition ist dann direkt startklar. 🎮"),
+            ChatMessage(role: .assistant, text: "Am 19. November 2026 ist es so weit — PS5 und Xbox Series X|S. Der Preload startet am 10. November, deine Ultimate Edition ist dann direkt startklar. 🎮"),
             ChatMessage(role: .user, text: "Und was gibt's Neues aus Leonida?"),
             ChatMessage(role: .assistant, text: "Im News-Tab lade ich dir die Schlagzeilen live — aktuell dreht sich alles um den Launch-Trailer und die letzten Wochen vor Release. Schau rein, da ist alles von heute. 📰"),
         ]
         let now = Date()
         news = [
             NewsItem(title: "GTA 6: Rockstar stimmt auf den Launch ein", source: "Rockstar Games", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-1800)),
-            NewsItem(title: "Preload ab 12. November: Speicherplatz freiräumen", source: "PlayStation Blog", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-7200)),
+            NewsItem(title: "Preload ab 10. November: Speicherplatz freiräumen", source: "PlayStation Blog", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-7200)),
             NewsItem(title: "Leonida wartet: Fans zählen die Tage bis zum 19. November", source: "Games News", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-18000)),
             NewsItem(title: "Vice City im Fokus: Das steckt im Extended Look", source: "GTA Magazin", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-40000)),
             NewsItem(title: "Take-Two bestätigt: GTA 6 bleibt beim November-Termin", source: "Branchen News", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-80000)),

@@ -36,10 +36,10 @@ struct TipsView: View {
                 basisNote: nil,
                 tips: [
                     Tip(id: "launch-preload",
-                        title: store.tr("Preload ab 12. November, 0:00 Uhr", "Preload from November 12, 12:00 AM"),
+                        title: store.tr("Preload ab 10. November, 0:00 Uhr", "Preload from November 10, 12:00 AM"),
                         text: store.tr(
-                            "Der Download startet am 12.11. um Mitternacht (Berlin). Ab dann lädt deine Konsole das Spiel vorab herunter — spielbar ist es erst ab Release.",
-                            "The download starts Nov 12 at midnight (Berlin). From then on your console pre-loads the game — it only becomes playable at release."
+                            "Der Download startet am 10.11. um Mitternacht (Berlin). Ab dann lädt deine Konsole das Spiel vorab herunter — spielbar ist es erst ab Release.",
+                            "The download starts Nov 10 at midnight (Berlin). From then on your console pre-loads the game — it only becomes playable at release."
                         )),
                     Tip(id: "launch-storage",
                         title: store.tr("Speicherplatz freiräumen", "Clear your storage"),

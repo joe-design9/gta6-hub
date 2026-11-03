@@ -102,7 +102,7 @@ struct NostalgiaView: View {
             ("12/05/2023", "Trailer 1", "Welcome to Leonida 🌴"),
             ("05/06/2025", "Trailer 2", "Jason & Lucia step into the spotlight."),
             ("08/27/2026", "An Extended Look", "26 minutes of Vice City, up close."),
-            ("11/12/2026", "Preload starts", "The farewell to GTA 5 🫡"),
+            ("11/10/2026", "Preload starts", "The farewell to GTA 5 🫡"),
             ("11/19/2026", "RELEASE", "Welcome home, Leonida 🎉"),
         ] : [
             ("17.09.2013", "GTA V erscheint", "Die Los-Santos-Ära beginnt 🏙️"),
@@ -110,7 +110,7 @@ struct NostalgiaView: View {
             ("05.12.2023", "Trailer 1", "Welcome to Leonida 🌴"),
             ("06.05.2025", "Trailer 2", "Jason & Lucia rücken in den Fokus."),
             ("27.08.2026", "An Extended Look", "26 Minuten Vice City, hautnah."),
-            ("12.11.2026", "Preload startet", "Der Abschied von GTA 5 🫡"),
+            ("10.11.2026", "Preload startet", "Der Abschied von GTA 5 🫡"),
             ("19.11.2026", "RELEASE", "Willkommen zu Hause, Leonida 🎉"),
         ]
     }
@@ -173,8 +173,8 @@ struct NostalgiaView: View {
                 Text(released
                      ? store.tr("Los Santos, 2013–2026. Für immer im Herzen. ❤️", "Los Santos, 2013–2026. Forever in our hearts. ❤️")
                      : store.tr(
-                        "Am 12. November heißt es Abschied nehmen: ein letztes Mal durch Los Santos cruisen, bevor der Preload startet.",
-                        "On November 12 it's time to say goodbye: one last cruise through Los Santos before the preload starts."
+                        "Am 10. November heißt es Abschied nehmen: ein letztes Mal durch Los Santos cruisen, bevor der Preload startet.",
+                        "On November 10 it's time to say goodbye: one last cruise through Los Santos before the preload starts."
                      ))
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white)

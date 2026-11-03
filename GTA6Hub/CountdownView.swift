@@ -102,7 +102,7 @@ struct CountdownView: View {
         }
     }
 
-    // MARK: - Preload-Countdown (12.11.2026, lokale Mitternacht)
+    // MARK: - Preload-Countdown (10.11.2026, lokale Mitternacht)
 
     private var preloadCard: some View {
         GlassCard {
@@ -113,7 +113,7 @@ struct CountdownView: View {
                         .tracking(2)
                         .foregroundStyle(Vice.sunset)
                     Spacer()
-                    Text("12.11.2026")
+                    Text("10.11.2026")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.6))
                 }

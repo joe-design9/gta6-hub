@@ -317,7 +317,7 @@ struct SettingsView: View {
                 Divider().overlay(Color.white.opacity(0.12))
                 row(store.tr("Release GTA 6", "GTA 6 release"), store.tr("19. November 2026", "November 19, 2026"))
                 Divider().overlay(Color.white.opacity(0.12))
-                row("Preload", store.tr("12. November 2026", "November 12, 2026"))
+                row("Preload", store.tr("10. November 2026", "November 10, 2026"))
                 Divider().overlay(Color.white.opacity(0.12))
                 Button {
                     if let url = URL(string: "https://www.rockstargames.com/VI") { openURL(url) }

@@ -62,7 +62,7 @@ enum GTA6 {
     static var preloadDate: Date {
         var c = DateComponents()
         c.timeZone = TimeZone(identifier: "Europe/Berlin")
-        c.year = 2026; c.month = 11; c.day = 12; c.hour = 0; c.minute = 0; c.second = 0
+        c.year = 2026; c.month = 11; c.day = 10; c.hour = 0; c.minute = 0; c.second = 0
         return Calendar(identifier: .gregorian).date(from: c) ?? Date()
     }
 

@@ -28,7 +28,7 @@ enum AIService {
             You are \(assistantName), a friendly, easygoing AI companion in the GTA 6 Hub app.\(nameLine) \
             Reply in English, short and helpful, with a wink but no rambling. \
             Key facts: GTA 6 launches on November 19, 2026 for PS5 and Xbox Series X|S, \
-            preload starts November 12, 2026.
+            preload starts November 10, 2026.
             """
         }
         let nameLine = user.isEmpty ? "" : " Der Nutzer heißt \(user) — sprich ihn gern ab und zu mit Namen an."
@@ -36,7 +36,7 @@ enum AIService {
         Du bist \(assistantName), ein freundlicher, lockerer KI-Begleiter in der GTA 6 Hub App.\(nameLine) \
         Antworte auf Deutsch, kurz und hilfreich, gern mit einem Augenzwinkern, aber ohne Geschwafel. \
         Wichtigste Fakten: GTA 6 erscheint am 19. November 2026 für PS5 und Xbox Series X|S, \
-        der Preload startet am 12. November 2026.
+        der Preload startet am 10. November 2026.
         """
     }
 
@@ -131,8 +131,8 @@ enum AIService {
         if last.contains("countdown") || last.contains("wie lange") || last.contains("how long") || last.contains("wann") && last.contains("gta") || last.contains("when") && last.contains("gta") {
             let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: GTA6.releaseDate)).day ?? 0
             return en
-                ? "GTA 6 launches on November 19, 2026 — that's \(days) days to go. Preload starts November 12. You'll find the live countdown in the Start tab 🎮"
-                : "GTA 6 erscheint am 19. November 2026 — das sind noch \(days) Tage. Der Preload startet am 12. November. Den Live-Countdown findest du im Start-Tab 🎮"
+                ? "GTA 6 launches on November 19, 2026 — that's \(days) days to go. Preload starts November 10. You'll find the live countdown in the Start tab 🎮"
+                : "GTA 6 erscheint am 19. November 2026 — das sind noch \(days) Tage. Der Preload startet am 10. November. Den Live-Countdown findest du im Start-Tab 🎮"
         }
         if last.contains("news") || last.contains("neuigkeit") {
             return en

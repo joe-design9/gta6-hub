@@ -31,7 +31,7 @@ struct ChecklistView: View {
         [
             Item(id: "preload", icon: "arrow.down.circle.fill",
                  title: store.tr("Preload geladen", "Preload downloaded"),
-                 note: store.tr("Startet am 12.11. um 0:00 Uhr — ab dann lädt die Konsole das Spiel vorab.", "Starts Nov 12 at midnight — from then on your console pre-loads the game.")),
+                 note: store.tr("Startet am 10.11. um 0:00 Uhr — ab dann lädt die Konsole das Spiel vorab.", "Starts Nov 10 at midnight — from then on your console pre-loads the game.")),
             Item(id: "storage", icon: "internaldrive.fill",
                  title: store.tr("Speicherplatz freigeräumt", "Storage cleared"),
                  note: store.tr("Die genaue Größe ist noch nicht offiziell — großzügig Platz schaffen.", "The exact size isn't official yet — clear plenty of space.")),
