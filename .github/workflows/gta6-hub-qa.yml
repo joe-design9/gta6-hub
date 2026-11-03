@@ -105,6 +105,9 @@ jobs:
           capture chat-empty -QAStartTab 2
           capture tips -UITestMode -QATips
           capture tips-scrolled -UITestMode -QATipsScrolled
+          capture characters -UITestMode -QACharacters
+          capture places -UITestMode -QAPlaces
+          capture checklist -UITestMode -QAChecklist
           capture home-real
           capture countdown-released -UITestMode -QAStartTab 1 -QAPreviewReleased
           ls -la shots
