@@ -31,7 +31,7 @@ struct TipsView: View {
         [
             TipCategory(
                 id: "launch",
-                icon: "rocket.fill",
+                icon: "flag.fill",
                 title: store.tr("Launch-Vorbereitung", "Launch prep"),
                 basisNote: nil,
                 tips: [
@@ -127,7 +127,7 @@ struct TipsView: View {
             ),
             TipCategory(
                 id: "start",
-                icon: "footprints.fill",
+                icon: "figure.walk",
                 title: store.tr("Erste Schritte in Leonida", "First steps in Leonida"),
                 basisNote: store.tr("Auf Basis der Trailer & offiziellen Infos:", "Based on the trailers & official info:"),
                 tips: [
@@ -339,7 +339,7 @@ struct TipsView: View {
                                 .fill(Vice.sunset)
                         }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(store.tr("\(store.assistantName) fragen", "Ask \(store.assistantName)"))
+                        Text(store.tr("\(store.assistantDisplayName) fragen", "Ask \(store.assistantDisplayName)"))
                             .font(.headline)
                             .foregroundStyle(.white)
                         Text(store.tr(
