@@ -59,6 +59,16 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $store.qaShowTips) {
             NavigationStack { TipsView() }
         }
+        // QA-Aufnahmen der v1.3.0-Ansichten: je ein Cover.
+        .fullScreenCover(isPresented: $store.qaShowCharacters) {
+            NavigationStack { CharactersView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowPlaces) {
+            NavigationStack { PlacesView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowChecklist) {
+            NavigationStack { ChecklistView() }
+        }
         #endif
     }
 }

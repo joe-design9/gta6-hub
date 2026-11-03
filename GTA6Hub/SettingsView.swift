@@ -11,6 +11,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    exploreCard
                     tipsCard
                     assistantCard
                     languageCard
@@ -32,6 +33,61 @@ struct SettingsView: View {
                 assistantNameDraft = store.assistantName
             }
         }
+    }
+
+    // MARK: - Entdecken (Charaktere, Orte, Checkliste — v1.3.0)
+
+    private var exploreCard: some View {
+        GlassCard {
+            VStack(spacing: 0) {
+                exploreRow(icon: "theatermasks.fill", title: store.tr("Charaktere", "Characters"), note: store.tr("Jason, Lucia & die Gesichter von Leonida", "Jason, Lucia & the faces of Leonida")) {
+                    CharactersView()
+                }
+                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 74)
+                exploreRow(icon: "mappin.and.ellipse", title: store.tr("Orte in Leonida", "Places in Leonida"), note: store.tr("Vice City, die Keys, die Sümpfe & mehr", "Vice City, the Keys, the swamps & more")) {
+                    PlacesView()
+                }
+                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 74)
+                exploreRow(icon: "checklist", title: store.tr("Launch-Checkliste", "Launch checklist"), note: store.tr("Abhaken, bis du startklar bist", "Tick everything off until you're ready")) {
+                    ChecklistView()
+                }
+            }
+            .padding(.vertical, 6)
+        }
+    }
+
+    private func exploreRow<Destination: View>(icon: String, title: String, note: String, @ViewBuilder destination: () -> Destination) -> some View {
+        NavigationLink {
+            destination()
+        } label: {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 44, height: 44)
+                    .background {
+                        Circle()
+                            .fill(Vice.sunset)
+                    }
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text(note)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(Vice.coral)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Tipps & Tricks (Kommandozentrale, v1.2.0)
@@ -257,7 +313,7 @@ struct SettingsView: View {
                 Text(store.tr("ÜBER GTA 6 HUB", "ABOUT GTA 6 HUB"))
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
-                row("Version", "1.2.0")
+                row("Version", "1.3.0")
                 Divider().overlay(Color.white.opacity(0.12))
                 row(store.tr("Release GTA 6", "GTA 6 release"), store.tr("19. November 2026", "November 19, 2026"))
                 Divider().overlay(Color.white.opacity(0.12))

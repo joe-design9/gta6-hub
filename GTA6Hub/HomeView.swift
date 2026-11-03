@@ -6,6 +6,7 @@ struct HomeView: View {
     @EnvironmentObject private var store: AppStore
     @State private var oracleIndex: Int?
     @State private var oracleStars = 0
+    @State private var factOffset = 0
 
     var body: some View {
         NavigationStack {
@@ -15,8 +16,11 @@ struct HomeView: View {
                     if let top = store.news.first {
                         topStory(top)
                     }
+                    factCard
                     quickActions
+                    exploreRow
                     tipsCard
+                    checklistCard
                     oracleCard
                 }
                 .padding(.horizontal, 16)
@@ -189,6 +193,149 @@ struct HomeView: View {
                         Text(store.tr(
                             "Launch-Checklisten, Spoiler-Schutz & erste Schritte in Leonida — für alle, die im Spiel hängen.",
                             "Launch checklists, spoiler protection & first steps in Leonida — for everyone who gets stuck."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Fakt des Tages (v1.3.0)
+
+    private var dailyFacts: [(de: String, en: String)] {
+        [
+            (de: "Trailer 1 erschien am 5. Dezember 2023 — vom ersten Trailer bis zum Release vergehen ganze 1.080 Tage.",
+             en: "Trailer 1 dropped on December 5, 2023 — a full 1,080 days pass between the first trailer and release."),
+            (de: "GTA 6 spielt in Leonida, Rockstars Version von Florida — das Herz des Staates ist Vice City.",
+             en: "GTA 6 is set in Leonida, Rockstar's take on Florida — and its heart is Vice City."),
+            (de: "Der geleakte Prolog zeigt: Das Spiel beginnt mit Lucia, frisch entlassen aus dem Leonida Penitentiary.",
+             en: "The leaked prologue shows: the game begins with Lucia, fresh out of Leonida Penitentiary."),
+            (de: "Boobie Ikes berühmtester Satz: „The club money pay for the studio, and the drug money pay for it all.“",
+             en: "Boobie Ike's most famous line: “The club money pay for the studio, and the drug money pay for it all.”"),
+            (de: "Jason war beim Militär — sein Fallschirmjäger-Tattoo auf dem Arm verrät seine Einheit.",
+             en: "Jason served in the military — the paratrooper tattoo on his arm gives away his unit."),
+            (de: "Der korrupte Cop Mendéz führt eine eigene Task Force — auf seiner Weste steht „Police STF“.",
+             en: "Corrupt cop Mendéz runs his own task force — his vest reads “Police STF”."),
+            (de: "Der Preload startet am 12. November um 0:00 Uhr — genau eine Woche vor dem Release.",
+             en: "The preload starts on November 12 at midnight — exactly one week before release."),
+            (de: "Raymond, genannt San4San, kontrolliert mit seiner Gang das Vice-City-Viertel La Perle.",
+             en: "Raymond, known as San4San, controls the Vice City district of La Perle with his gang."),
+            (de: "Die erste Mission im Extended Look führt Jason und Lucia in die Venture Apartments — eine Abholung für Boobie Ike.",
+             en: "The first mission in the Extended Look takes Jason and Lucia to the Venture Apartments — a pickup for Boobie Ike."),
+            (de: "Jason wohnt mietfrei in einem Haus seines Bosses Brian Heder in den Leonida Keys.",
+             en: "Jason lives rent-free in one of his boss Brian Heder's houses in the Leonida Keys."),
+            (de: "Cal Hampton erkennt man sofort: Eimerhut, Sonnenbrille und ein Hawaiihemd mit Alien-Print.",
+             en: "You can spot Cal Hampton instantly: bucket hat, sunglasses and an alien-print Hawaiian shirt."),
+            (de: "Raul Bautista ist ein Bankräuber-Veteran — bei der großen Flucht sitzt er mit Jason und Lucia im Auto.",
+             en: "Raul Bautista is a veteran bank robber — during the big escape he rides in the car with Jason and Lucia."),
+        ]
+    }
+
+    private var factOfTheDay: String {
+        let day = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
+        let count = dailyFacts.count
+        let index = (((day - 1 + factOffset) % count) + count) % count
+        let fact = dailyFacts[index]
+        return store.tr(fact.de, fact.en)
+    }
+
+    private var factCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text(store.tr("FAKT DES TAGES 💡", "FACT OF THE DAY 💡"))
+                        .font(.caption2.weight(.bold)).tracking(1.5)
+                        .foregroundStyle(.white.opacity(0.55))
+                    Spacer()
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) { factOffset += 1 }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(store.tr("Nächster", "Next"))
+                            Image(systemName: "arrow.right")
+                        }
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                    }
+                    .buttonStyle(.plain)
+                }
+                Text(factOfTheDay)
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // MARK: - Entdecken: Charaktere & Orte (v1.3.0)
+
+    private var exploreRow: some View {
+        HStack(spacing: 12) {
+            exploreButton(icon: "theatermasks.fill", title: store.tr("Charaktere", "Characters")) {
+                CharactersView()
+            }
+            exploreButton(icon: "mappin.and.ellipse", title: store.tr("Orte", "Places")) {
+                PlacesView()
+            }
+        }
+    }
+
+    private func exploreButton<Destination: View>(icon: String, title: String, @ViewBuilder destination: () -> Destination) -> some View {
+        NavigationLink {
+            destination()
+        } label: {
+            GlassCard(cornerRadius: 22) {
+                HStack(spacing: 10) {
+                    Image(systemName: icon)
+                        .foregroundStyle(Vice.orange)
+                    Text(title).font(.subheadline.weight(.semibold))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Launch-Checkliste (v1.3.0)
+
+    private var checklistCard: some View {
+        NavigationLink {
+            ChecklistView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "checklist")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("LAUNCH-CHECKLISTE", "LAUNCH CHECKLIST"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("Startklar für Leonida?", "Ready for Leonida?"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Preload, Controller, Snacks: Hak Punkt für Punkt ab und sieh im Fortschrittsring, wie launchfertig du bist.",
+                            "Preload, controllers, snacks: tick everything off and watch the progress ring show how launch-ready you are."
                         ))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.65))

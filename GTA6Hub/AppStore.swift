@@ -19,6 +19,10 @@ final class AppStore: ObservableObject {
     /// QA-Screenshots der Tipps-Ansicht (-QATips / -QATipsScrolled) —
     /// nur im QA-Build vorhanden, Release kennt den Schalter nicht.
     @Published var qaShowTips = false
+    /// QA-Screenshots der v1.3.0-Ansichten (Charaktere, Orte, Checkliste).
+    @Published var qaShowCharacters = false
+    @Published var qaShowPlaces = false
+    @Published var qaShowChecklist = false
     #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
@@ -72,6 +76,10 @@ final class AppStore: ObservableObject {
         hasOnboarded = !args.contains("-QAOnboarding")
         // Tipps-Ansicht für ihre QA-Aufnahmen direkt präsentieren.
         qaShowTips = args.contains("-QATips") || args.contains("-QATipsScrolled")
+        // v1.3.0-Ansichten für ihre QA-Aufnahmen direkt präsentieren.
+        qaShowCharacters = args.contains("-QACharacters")
+        qaShowPlaces = args.contains("-QAPlaces")
+        qaShowChecklist = args.contains("-QAChecklist")
         seedUITestDataIfRequested()
         #endif
     }
@@ -143,6 +151,9 @@ final class AppStore: ObservableObject {
             NewsItem(title: "Take-Two bestätigt: GTA 6 bleibt beim November-Termin", source: "Branchen News", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-80000)),
         ]
         newsUpdated = now
+        // Checkliste im QA-Seed teilweise abgehakt, damit der
+        // Fortschrittsring auf der Aufnahme gefüllt ist.
+        UserDefaults.standard.set(["preload", "storage", "controller", "snacks"], forKey: "launchChecklist.v1")
     }
     #endif
 }
