@@ -15,6 +15,9 @@ struct GTA6HubApp: App {
 
 struct ContentView: View {
     @EnvironmentObject private var store: AppStore
+    @AppStorage("lastSeenAppVersion") private var lastSeenAppVersion: String = ""
+    @State private var whatsNewEntries: [HubChangelog.Entry] = []
+    @State private var showWhatsNew = false
 
     var body: some View {
         ZStack {
@@ -43,6 +46,9 @@ struct ContentView: View {
                 VicePage { SettingsView() }
                     .tabItem { Label(store.tr("Mehr", "More"), systemImage: "gearshape.fill") }
                     .tag(7)
+                VicePage { UpdateNewsView() }
+                    .tabItem { Label("Update News", systemImage: "megaphone.fill") }
+                    .tag(8)
             }
             .tint(Vice.coral)
             if !store.hasOnboarded {
@@ -54,6 +60,15 @@ struct ContentView: View {
             QABadge()
             #endif
         }
+        // „Was ist neu" nach einem Update (v1.4.0) — im QA-Build nie.
+        .sheet(isPresented: $showWhatsNew) {
+            WhatsNewView(entries: whatsNewEntries) {
+                lastSeenAppVersion = UpdateNews.currentVersion
+                showWhatsNew = false
+            }
+            .interactiveDismissDisabled(true)
+        }
+        .onAppear { checkWhatsNew() }
         #if QA
         // QA-Aufnahmen der Tipps-Ansicht: als Cover über dem Start-Tab.
         .fullScreenCover(isPresented: $store.qaShowTips) {
@@ -68,6 +83,26 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $store.qaShowChecklist) {
             NavigationStack { ChecklistView() }
+        }
+        #endif
+    }
+
+    /// Zeigt nach einem Versionswechsel einmalig das „Was ist neu"-Blatt.
+    /// Frische Installation: nur die Highlights der aktuellen Version.
+    /// QA-Builds überspringen das immer (saubere Screenshots).
+    private func checkWhatsNew() {
+        #if !QA
+        guard store.hasOnboarded else { return }
+        let current = UpdateNews.currentVersion
+        guard lastSeenAppVersion != current else { return }
+        let entries = lastSeenAppVersion.isEmpty
+            ? Array(HubChangelog.all.prefix(1))
+            : HubChangelog.entries(newerThan: lastSeenAppVersion)
+        if entries.isEmpty {
+            lastSeenAppVersion = current
+        } else {
+            whatsNewEntries = entries
+            showWhatsNew = true
         }
         #endif
     }
