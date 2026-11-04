@@ -178,9 +178,9 @@ struct CountdownView: View {
     private func totalTile(value: Int, label: String) -> some View {
         VStack(spacing: 3) {
             Text(grouped(value))
-                .font(.system(size: 17, weight: .bold, design: .rounded))
+                .font(.system(size: 19, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(Vice.sunset)
+                .foregroundStyle(.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Text(label)
@@ -211,7 +211,7 @@ struct CountdownView: View {
         let total = GTA6.releaseDate.timeIntervalSince(GTA6.trailer1Date)
         let elapsed = min(max(now.timeIntervalSince(GTA6.trailer1Date), 0), total)
         let percent = total > 0 ? elapsed / total * 100 : 100
-        let sleeps = max(0, Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: GTA6.releaseDate)).day ?? 0)
+        let sleeps = parts(to: GTA6.releaseDate, now: now).days
         let percentText: String = {
             let f = NumberFormatter()
             f.numberStyle = .decimal
@@ -269,7 +269,9 @@ struct CountdownView: View {
     }
 
     private func milestoneRow(icon: String, title: String, date: Date, color: Color) -> some View {
-        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: Date()), to: Calendar.current.startOfDay(for: date)).day ?? 0
+        let now = EffectiveNow.value(Date())
+        let reached = now >= date
+        let days = parts(to: date, now: now).days
         return HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.title3)
@@ -282,7 +284,7 @@ struct CountdownView: View {
                     .foregroundStyle(.white.opacity(0.55))
             }
             Spacer()
-            Text(days <= 0 ? "🎉" : store.tr("noch \(days) Tage", "\(days) days to go"))
+            Text(reached ? "🎉" : days == 0 ? store.tr("heute Nacht 🎉", "tonight 🎉") : store.tr("noch \(days) Tage", "\(days) days to go"))
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.white.opacity(0.85))
         }
