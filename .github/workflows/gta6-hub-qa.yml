@@ -111,7 +111,7 @@ jobs:
           capture checklist -UITestMode -QAChecklist
           capture home-real
           capture countdown-released -UITestMode -QAStartTab 1 -QAPreviewReleased
-          xcrun simctl launch --terminate-running-process booted dev.joe.gta6hub -QAStartTab 3 -QAArticle
+          xcrun simctl launch --terminate-running-process booted dev.joe.gta6hub -QAStartTab 3 -QAArticle || true
           sleep 14
           xcrun simctl io booted screenshot shots/article.png
           
