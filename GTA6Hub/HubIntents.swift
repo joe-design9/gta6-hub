@@ -30,6 +30,7 @@ enum HubSpeech {
 }
 
 /// „Wie lange noch bis GTA 6?" — Countdown bis Preload und Release.
+@AppIntent(.tool)
 struct ReleaseCountdownIntent: AppIntent {
     static var title: LocalizedStringResource = "GTA 6 Countdown"
     static var description = IntentDescription("Sagt dir, wie lange es noch bis zum Preload und zum Release von GTA 6 dauert.")
@@ -59,6 +60,7 @@ struct ReleaseCountdownIntent: AppIntent {
 }
 
 /// „Was gibt es Neues zu GTA 6?" — die aktuellste Schlagzeile aus dem Hub-Feed.
+@AppIntent(.tool)
 struct LatestNewsIntent: AppIntent {
     static var title: LocalizedStringResource = "GTA 6 News"
     static var description = IntentDescription("Liest die neueste GTA-6-Schlagzeile aus dem Hub vor.")
@@ -80,6 +82,7 @@ struct LatestNewsIntent: AppIntent {
 }
 
 /// „GTA 6 Fakt des Tages" — derselbe Fakt wie auf dem Start-Tab.
+@AppIntent(.tool)
 struct FactOfDayIntent: AppIntent {
     static var title: LocalizedStringResource = "GTA 6 Fakt des Tages"
     static var description = IntentDescription("Erzählt den GTA-6-Fakt des Tages aus dem Hub.")
@@ -95,6 +98,7 @@ struct FactOfDayIntent: AppIntent {
 }
 
 /// „Wie weit ist meine Launch-Checkliste?" — Fortschritt aus der App.
+@AppIntent(.tool)
 struct ChecklistProgressIntent: AppIntent {
     static var title: LocalizedStringResource = "Launch-Checkliste"
     static var description = IntentDescription("Sagt dir, wie viele Punkte deiner GTA-6-Launch-Checkliste schon erledigt sind.")
