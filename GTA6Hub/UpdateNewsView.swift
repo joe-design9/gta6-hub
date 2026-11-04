@@ -16,6 +16,10 @@ enum HubChangelog {
     /// Neueste Version zuerst.
     static let all: [Entry] = [
         Entry(version: "1.4.1", dateDE: "November 2026", dateEN: "November 2026", highlights: [
+            (de: "Nachrichten laufen flüssig ein: Antworten tippen sich Stück für Stück ein, statt als ganzer Block zu erscheinen.",
+             en: "Messages flow in smoothly: replies now type in piece by piece instead of appearing as one whole block."),
+            (de: "Die drei Punkte der Schreib-Anzeige bewegen sich jetzt — sie hüpfen der Reihe nach, während der Hub nachdenkt.",
+             en: "The three typing dots move now — they bounce in turn while the Hub is thinking."),
             (de: "Zahlen jetzt klar lesbar: Stunden, Minuten und Sekunden stehen in kräftigem Weiß statt im Farbverlauf.",
              en: "Numbers are easy to read now: hours, minutes and seconds are shown in solid white instead of the gradient."),
             (de: "Gezählt wird wie auf der PlayStation: „× schlafen“ und die Tages-Anzeigen folgen jetzt dem Countdown-Timer (volle Tage) statt dem Kalender.",

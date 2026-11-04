@@ -96,21 +96,51 @@ final class AppStore: ObservableObject {
 
     // MARK: - Chat
 
+    private var revealTask: Task<Void, Never>?
+
     func send(text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !isThinking else { return }
+        revealTask?.cancel()
         messages.append(ChatMessage(role: .user, text: trimmed))
         isThinking = true
         let history = messages
         let key = nvidiaKey.isEmpty ? nil : nvidiaKey
         Task {
+            let answer: String
             do {
-                let answer = try await AIService.reply(history: history, nvidiaKey: key, assistantName: assistantDisplayName, userName: userName)
-                messages.append(ChatMessage(role: .assistant, text: answer))
+                answer = try await AIService.reply(history: history, nvidiaKey: key, assistantName: assistantDisplayName, userName: userName)
             } catch {
-                messages.append(ChatMessage(role: .assistant, text: tr("Da ist was schiefgelaufen — prüf kurz deine Verbindung oder den NVIDIA-Key in den Einstellungen und versuch's nochmal.", "Something went wrong — check your connection or the NVIDIA key in Settings and try again.")))
+                answer = tr("Da ist was schiefgelaufen — prüf kurz deine Verbindung oder den NVIDIA-Key in den Einstellungen und versuch's nochmal.", "Something went wrong — check your connection or the NVIDIA key in Settings and try again.")
             }
             isThinking = false
+            reveal(answer: answer)
+        }
+    }
+
+    /// Lässt die Antwort Stück für Stück einlaufen (Typewriter-Gefühl),
+    /// statt sie als ganzen Block zu zeigen — wirkt deutlich flüssiger.
+    /// Beim Abbruch (neue Nachricht) springt der Text sofort auf komplett.
+    private func reveal(answer: String) {
+        let message = ChatMessage(role: .assistant, text: "")
+        messages.append(message)
+        let id = message.id
+        let characters = Array(answer)
+        revealTask = Task {
+            var shown = 0
+            while shown < characters.count {
+                if Task.isCancelled { break }
+                shown = min(characters.count, shown + 4)
+                if let index = messages.firstIndex(where: { $0.id == id }) {
+                    messages[index].text = String(characters[0..<shown])
+                }
+                if shown < characters.count {
+                    try? await Task.sleep(nanoseconds: 15_000_000)
+                }
+            }
+            if Task.isCancelled, let index = messages.firstIndex(where: { $0.id == id }) {
+                messages[index].text = answer
+            }
         }
     }
 

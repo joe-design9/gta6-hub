@@ -56,6 +56,7 @@ struct ChatView: View {
                         ForEach(store.messages) { message in
                             bubble(message)
                                 .id(message.id)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
                         }
                         if store.isThinking {
                             thinkingBubble
@@ -64,6 +65,7 @@ struct ChatView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
+                    .animation(.easeOut(duration: 0.25), value: store.messages.count)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -74,6 +76,10 @@ struct ChatView: View {
             }
             .onChange(of: store.isThinking) { _, _ in
                 withAnimation(.easeOut(duration: 0.25)) { proxy.scrollTo("bottom", anchor: .bottom) }
+            }
+            .onChange(of: store.messages.last?.text) { _, _ in
+                // Während die Antwort eintippt, sanft am Ende dranbleiben.
+                proxy.scrollTo("bottom", anchor: .bottom)
             }
         }
     }
@@ -139,19 +145,34 @@ struct ChatView: View {
 
     private var thinkingBubble: some View {
         HStack {
+            TypingDots()
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(.clear)
+                        .glassEffect(.regular.tint(.white.opacity(0.08)), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                }
+            Spacer(minLength: 60)
+        }
+    }
+
+    /// Die drei Punkte der Schreib-Anzeige: Sie hüpfen der Reihe nach
+    /// und pulsieren dabei, statt starr zu stehen (v1.4.1).
+    private struct TypingDots: View {
+        @State private var bouncing = false
+
+        var body: some View {
             HStack(spacing: 5) {
-                ForEach(0..<3, id: \.self) { _ in
-                    Circle().fill(Color.white.opacity(0.7)).frame(width: 7, height: 7)
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(Color.white.opacity(bouncing ? 1.0 : 0.35))
+                        .frame(width: 7, height: 7)
+                        .offset(y: bouncing ? -3 : 0)
+                        .animation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true).delay(Double(index) * 0.15), value: bouncing)
                 }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.clear)
-                    .glassEffect(.regular.tint(.white.opacity(0.08)), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            }
-            Spacer(minLength: 60)
+            .onAppear { bouncing = true }
         }
     }
 
