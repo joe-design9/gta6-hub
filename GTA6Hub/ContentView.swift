@@ -18,6 +18,7 @@ struct ContentView: View {
     @AppStorage("lastSeenAppVersion") private var lastSeenAppVersion: String = ""
     @State private var whatsNewEntries: [HubChangelog.Entry] = []
     @State private var showWhatsNew = false
+    @AppStorage("accentColor") private var accentColor = "coral"
 
     var body: some View {
         ZStack {
@@ -34,23 +35,11 @@ struct ContentView: View {
                 VicePage { NewsView() }
                     .tabItem { Label("News", systemImage: "newspaper.fill") }
                     .tag(3)
-                VicePage { GalleryView() }
-                    .tabItem { Label(store.tr("Galerie", "Gallery"), systemImage: "photo.on.rectangle.angled") }
+                VicePage { MoreHubView() }
+                    .tabItem { Label(store.tr("Mehr", "More"), systemImage: "ellipsis.circle.fill") }
                     .tag(4)
-                VicePage { MapView() }
-                    .tabItem { Label("Map", systemImage: "map.fill") }
-                    .tag(5)
-                VicePage { NostalgiaView() }
-                    .tabItem { Label(store.tr("Nostalgie", "Nostalgia"), systemImage: "heart.fill") }
-                    .tag(6)
-                VicePage { SettingsView() }
-                    .tabItem { Label(store.tr("Mehr", "More"), systemImage: "gearshape.fill") }
-                    .tag(7)
-                VicePage { UpdateNewsView() }
-                    .tabItem { Label("Update News", systemImage: "megaphone.fill") }
-                    .tag(8)
             }
-            .tint(Vice.coral)
+            .tint(AccentStyle.color(accentColor))
             if !store.hasOnboarded {
                 OnboardingView()
                     .transition(.opacity)
@@ -83,6 +72,23 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $store.qaShowChecklist) {
             NavigationStack { ChecklistView() }
+        }
+        // QA-Aufnahmen der früheren Tabs (v1.6.0): Sie leben jetzt in der
+        // eigenen „Mehr"-Seite und werden für die Aufnahmen als Cover gezeigt.
+        .fullScreenCover(isPresented: $store.qaShowGallery) {
+            NavigationStack { GalleryView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowMap) {
+            NavigationStack { MapView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowNostalgia) {
+            NavigationStack { NostalgiaView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowSettings) {
+            NavigationStack { SettingsView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowUpdateNews) {
+            NavigationStack { UpdateNewsView() }
         }
         #endif
     }

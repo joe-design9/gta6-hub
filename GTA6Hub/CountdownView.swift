@@ -6,6 +6,7 @@ import SwiftUI
 struct CountdownView: View {
     @EnvironmentObject private var store: AppStore
     @AppStorage("focusZone") private var focusZone = "Europe/Berlin"
+    @AppStorage("countdownShowSeconds") private var showSeconds = true
 
     var body: some View {
         NavigationStack {
@@ -46,7 +47,7 @@ struct CountdownView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.6))
                 }
-                TimelineView(.periodic(from: .now, by: 1)) { context in
+                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                     let now = EffectiveNow.value(context.date)
                     VStack(spacing: 14) {
                         if now >= GTA6.releaseDate {
@@ -58,7 +59,9 @@ struct CountdownView: View {
                                 timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
                                 timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
                                 timeTile(value: parts.minutes, label: "MIN")
-                                timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                if showSeconds {
+                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                }
                             }
                             Text(store.tr("seit dem Launch — willkommen in Leonida 🌴", "since launch — welcome to Leonida 🌴"))
                                 .font(.subheadline)
@@ -69,7 +72,9 @@ struct CountdownView: View {
                                 timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
                                 timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
                                 timeTile(value: parts.minutes, label: "MIN")
-                                timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                if showSeconds {
+                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                }
                             }
                             Text(store.tr("bis zum Launch um Mitternacht 🎮", "until the midnight launch 🎮"))
                                 .font(.subheadline)
@@ -117,7 +122,7 @@ struct CountdownView: View {
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.6))
                 }
-                TimelineView(.periodic(from: .now, by: 1)) { context in
+                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                     let now = EffectiveNow.value(context.date)
                     VStack(spacing: 14) {
                         if now >= GTA6.preloadDate {
@@ -134,7 +139,9 @@ struct CountdownView: View {
                                 timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
                                 timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
                                 timeTile(value: parts.minutes, label: "MIN")
-                                timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                if showSeconds {
+                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                }
                             }
                             Text(store.tr("bis zum Preload um Mitternacht — dann zieht deine PS5 den Download 📥", "until the midnight preload — then your PS5 grabs the download 📥"))
                                 .font(.subheadline)
@@ -152,7 +159,7 @@ struct CountdownView: View {
     private var totalsCard: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
-                TimelineView(.periodic(from: .now, by: 1)) { context in
+                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                     let now = EffectiveNow.value(context.date)
                     let released = now >= GTA6.releaseDate
                     let interval = Int(abs(GTA6.releaseDate.timeIntervalSince(now)))
@@ -165,7 +172,9 @@ struct CountdownView: View {
                         HStack(spacing: 10) {
                             totalTile(value: interval / 3600, label: store.tr("STUNDEN", "HOURS"))
                             totalTile(value: interval / 60, label: store.tr("MINUTEN", "MINUTES"))
-                            totalTile(value: interval, label: store.tr("SEKUNDEN", "SECONDS"))
+                            if showSeconds {
+                                totalTile(value: interval, label: store.tr("SEKUNDEN", "SECONDS"))
+                            }
                         }
                     }
                 }

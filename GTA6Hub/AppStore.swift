@@ -26,6 +26,16 @@ final class AppStore: ObservableObject {
     /// QA-Screenshot der Lese-Ansicht (-QAArticle, v1.5.0): Die News-
     /// Ansicht öffnet damit automatisch den ersten Artikel.
     @Published var qaShowArticle = false
+    /// QA-Screenshots der früheren Tabs (v1.6.0): Sie leben jetzt in der
+    /// eigenen „Mehr"-Seite und werden für die Aufnahmen als Cover gezeigt.
+    @Published var qaShowGallery = false
+    @Published var qaShowMap = false
+    @Published var qaShowNostalgia = false
+    @Published var qaShowSettings = false
+    @Published var qaShowUpdateNews = false
+    /// QA-Aufnahme der Design-Karte (-QASettingsDesign): Die Einstellungen
+    /// scrollen damit direkt zu den neuen Design-Optionen.
+    @Published var qaShowSettingsDesign = false
     #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
@@ -84,6 +94,12 @@ final class AppStore: ObservableObject {
         qaShowPlaces = args.contains("-QAPlaces")
         qaShowChecklist = args.contains("-QAChecklist")
         qaShowArticle = args.contains("-QAArticle")
+        qaShowGallery = args.contains("-QAGallery")
+        qaShowMap = args.contains("-QAMap")
+        qaShowNostalgia = args.contains("-QANostalgia")
+        qaShowSettings = args.contains("-QASettings")
+        qaShowUpdateNews = args.contains("-QAUpdateNews")
+        qaShowSettingsDesign = args.contains("-QASettingsDesign")
         seedUITestDataIfRequested()
         #endif
     }
@@ -130,16 +146,27 @@ final class AppStore: ObservableObject {
         messages.append(message)
         let id = message.id
         let characters = Array(answer)
+        // Schreibmaschinen-Tempo aus den Einstellungen (v1.6.0):
+        // 0 = aus (sofort komplett), 1 = normal, 2 = schnell.
+        let speed = UserDefaults.standard.object(forKey: "typewriterSpeed") as? Int ?? 1
+        if speed == 0 {
+            if let index = messages.firstIndex(where: { $0.id == id }) {
+                messages[index].text = answer
+            }
+            return
+        }
+        let chunk = speed == 2 ? 12 : 4
+        let pause: UInt64 = speed == 2 ? 10_000_000 : 15_000_000
         revealTask = Task {
             var shown = 0
             while shown < characters.count {
                 if Task.isCancelled { break }
-                shown = min(characters.count, shown + 4)
+                shown = min(characters.count, shown + chunk)
                 if let index = messages.firstIndex(where: { $0.id == id }) {
                     messages[index].text = String(characters[0..<shown])
                 }
                 if shown < characters.count {
-                    try? await Task.sleep(nanoseconds: 15_000_000)
+                    try? await Task.sleep(nanoseconds: pause)
                 }
             }
             if Task.isCancelled, let index = messages.firstIndex(where: { $0.id == id }) {

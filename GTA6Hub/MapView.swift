@@ -12,8 +12,7 @@ struct MapView: View {
     static let mapURL = URL(string: "https://map.stateofleonida.net")!
 
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 MapWebView(url: Self.mapURL, isLoading: $isLoading)
                     .ignoresSafeArea(edges: .bottom)
                 if isLoading {
@@ -57,7 +56,6 @@ struct MapView: View {
                         .glassEffect(.regular.tint(.white.opacity(0.08)), in: Rectangle())
                 }
             }
-        }
     }
 }
 

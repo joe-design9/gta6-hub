@@ -6,15 +6,24 @@ struct SettingsView: View {
     @State private var keyDraft = ""
     @State private var userNameDraft = ""
     @State private var assistantNameDraft = ""
+    @AppStorage("backdropStyle") private var backdropStyle = "sunset"
+    @AppStorage("accentColor") private var accentColor = "coral"
+    @AppStorage("countdownShowSeconds") private var countdownShowSeconds = true
+    @AppStorage("typewriterSpeed") private var typewriterSpeed = 1
+    @AppStorage("newsOpenMode") private var newsOpenMode = "reader"
+    @AppStorage("hapticsEnabled") private var hapticsEnabled = true
 
     var body: some View {
-        NavigationStack {
+        ScrollViewReader { proxy in
             ScrollView {
                 VStack(spacing: 16) {
                     exploreCard
                     tipsCard
                     assistantCard
                     languageCard
+                    designCard
+                        .id("settings-design")
+                    behaviorCard
                     engineCard
                     keyCard
                     aboutCard
@@ -23,7 +32,7 @@ struct SettingsView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 24)
             }
-            .navigationTitle(store.tr("Mehr", "More"))
+            .navigationTitle(store.tr("Einstellungen", "Settings"))
             .navigationBarTitleDisplayMode(.large)
             .scrollContentBackground(.hidden)
             .background { AppBackdrop() }
@@ -31,6 +40,14 @@ struct SettingsView: View {
                 keyDraft = store.nvidiaKey
                 userNameDraft = store.userName
                 assistantNameDraft = store.assistantName
+                #if QA
+                // QA-Aufnahme der neuen Design-Karte: direkt dorthin scrollen.
+                if store.qaShowSettingsDesign {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                        withAnimation { proxy.scrollTo("settings-design", anchor: .top) }
+                    }
+                }
+                #endif
             }
         }
     }
@@ -67,7 +84,7 @@ struct SettingsView: View {
                     .frame(width: 44, height: 44)
                     .background {
                         Circle()
-                            .fill(Vice.sunset)
+                            .fill(AccentStyle.gradient(accentColor))
                     }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
@@ -81,7 +98,7 @@ struct SettingsView: View {
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(Vice.coral)
+                    .foregroundStyle(AccentStyle.color(accentColor))
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 12)
@@ -104,7 +121,7 @@ struct SettingsView: View {
                         .frame(width: 44, height: 44)
                         .background {
                             Circle()
-                                .fill(Vice.sunset)
+                                .fill(AccentStyle.gradient(accentColor))
                         }
                     VStack(alignment: .leading, spacing: 3) {
                         Text(store.tr("Tipps & Tricks", "Tips & Tricks"))
@@ -121,7 +138,7 @@ struct SettingsView: View {
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.caption.weight(.bold))
-                        .foregroundStyle(Vice.coral)
+                        .foregroundStyle(AccentStyle.color(accentColor))
                 }
                 .padding(18)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -205,6 +222,7 @@ struct SettingsView: View {
     private func languagePill(title: String, code: String) -> some View {
         Button {
             withAnimation(.easeInOut(duration: 0.2)) { store.setLanguage(code) }
+            Haptics.tap()
         } label: {
             Text(title)
                 .font(.subheadline.weight(.bold))
@@ -213,7 +231,7 @@ struct SettingsView: View {
                 .padding(.vertical, 10)
                 .background {
                     if store.language == code {
-                        Capsule().fill(Vice.sunset)
+                        Capsule().fill(AccentStyle.gradient(accentColor))
                     } else {
                         Capsule()
                             .fill(.clear)
@@ -305,6 +323,189 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Design (Hintergrund, Akzentfarbe, Haptik — v1.6.0)
+
+    private var designCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(store.tr("DESIGN", "DESIGN"))
+                    .font(.caption2.weight(.bold)).tracking(1.5)
+                    .foregroundStyle(.white.opacity(0.55))
+                Text(store.tr("Hintergrund", "Background"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+                HStack(spacing: 10) {
+                    backdropPill(title: "Vice Sunset", key: "sunset")
+                    backdropPill(title: store.tr("Nacht", "Night"), key: "night")
+                    backdropPill(title: "Midnight", key: "midnight")
+                    Spacer()
+                }
+                Text(store.tr("Akzentfarbe", "Accent color"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+                HStack(spacing: 14) {
+                    accentDot(key: "coral")
+                    accentDot(key: "pink")
+                    accentDot(key: "cyan")
+                    accentDot(key: "gold")
+                    Spacer()
+                }
+                Divider().overlay(Color.white.opacity(0.12))
+                Toggle(isOn: $hapticsEnabled) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.tr("Haptik-Feedback", "Haptic feedback"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(store.tr("Kurzes Vibrieren bei Auswahl und Aktionen.", "A short buzz on selections and actions."))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                }
+                .tint(AccentStyle.color(accentColor))
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func backdropPill(title: String, key: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.25)) { backdropStyle = key }
+            Haptics.tap()
+        } label: {
+            Text(title)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background {
+                    if backdropStyle == key {
+                        Capsule().fill(AccentStyle.gradient(accentColor))
+                    } else {
+                        Capsule()
+                            .fill(.clear)
+                            .glassEffect(.regular.tint(.white.opacity(0.08)), in: Capsule())
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func accentDot(key: String) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.2)) { accentColor = key }
+            Haptics.tap()
+        } label: {
+            Circle()
+                .fill(AccentStyle.gradient(key))
+                .frame(width: 34, height: 34)
+                .overlay {
+                    if accentColor == key {
+                        Circle()
+                            .strokeBorder(Color.white, lineWidth: 2.5)
+                            .padding(-4)
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Dein Hub (Countdown, Chat-Tempo, News-Ansicht — v1.6.0)
+
+    private var behaviorCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 14) {
+                Text(store.tr("DEIN HUB", "YOUR HUB"))
+                    .font(.caption2.weight(.bold)).tracking(1.5)
+                    .foregroundStyle(.white.opacity(0.55))
+                Toggle(isOn: $countdownShowSeconds) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.tr("Sekunden im Countdown", "Seconds in the countdown"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(store.tr("Aus: Der Countdown tickt im Minuten-Takt — ruhiger.", "Off: the countdown ticks once a minute — calmer."))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                }
+                .tint(AccentStyle.color(accentColor))
+                Divider().overlay(Color.white.opacity(0.12))
+                Text(store.tr("Chat-Tempo (Schreibmaschine)", "Chat speed (typewriter)"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+                HStack(spacing: 10) {
+                    speedPill(title: store.tr("Aus", "Off"), value: 0)
+                    speedPill(title: "Normal", value: 1)
+                    speedPill(title: store.tr("Schnell", "Fast"), value: 2)
+                    Spacer()
+                }
+                Divider().overlay(Color.white.opacity(0.12))
+                Text(store.tr("News öffnen als", "Open news as"))
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.7))
+                HStack(spacing: 10) {
+                    newsModePill(title: store.tr("Lese-Ansicht", "Reading view"), key: "reader")
+                    newsModePill(title: store.tr("Web-Ansicht", "Web view"), key: "web")
+                    Spacer()
+                }
+                Text(store.tr(
+                    "Die Lese-Ansicht bereitet Artikel direkt in der App auf. In jeder News kannst du oben rechts jederzeit umschalten.",
+                    "The reading view formats articles right inside the app. You can switch any time from the menu in each article."
+                ))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.55))
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func speedPill(title: String, value: Int) -> some View {
+        Button {
+            typewriterSpeed = value
+            Haptics.tap()
+        } label: {
+            Text(title)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background {
+                    if typewriterSpeed == value {
+                        Capsule().fill(AccentStyle.gradient(accentColor))
+                    } else {
+                        Capsule()
+                            .fill(.clear)
+                            .glassEffect(.regular.tint(.white.opacity(0.08)), in: Capsule())
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func newsModePill(title: String, key: String) -> some View {
+        Button {
+            newsOpenMode = key
+            Haptics.tap()
+        } label: {
+            Text(title)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 9)
+                .background {
+                    if newsOpenMode == key {
+                        Capsule().fill(AccentStyle.gradient(accentColor))
+                    } else {
+                        Capsule()
+                            .fill(.clear)
+                            .glassEffect(.regular.tint(.white.opacity(0.08)), in: Capsule())
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Über die App
 
     private var aboutCard: some View {
@@ -313,7 +514,7 @@ struct SettingsView: View {
                 Text(store.tr("ÜBER GTA 6 HUB", "ABOUT GTA 6 HUB"))
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
-                row("Version", "1.3.0")
+                row("Version", UpdateNews.currentVersion)
                 Divider().overlay(Color.white.opacity(0.12))
                 row(store.tr("Release GTA 6", "GTA 6 release"), store.tr("19. November 2026", "November 19, 2026"))
                 Divider().overlay(Color.white.opacity(0.12))

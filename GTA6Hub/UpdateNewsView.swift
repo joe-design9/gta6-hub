@@ -15,6 +15,14 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "1.6.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
+            (de: "Die „Mehr“-Seite ist jetzt eine eigene Hub-Seite im Vice-Look — Sonnenuntergang und Palmen statt der schwarzen iOS-Standardliste.",
+             en: "The “More” page is now the Hub's own page in the Vice look — sunset and palms instead of the black iOS stock list."),
+            (de: "Design selbst wählen: Hintergrund „Vice Sunset“, „Nacht“ mit Mond und Sternen oder „Midnight“ — plus Akzentfarben in Koralle, Pink, Cyan und Gold.",
+             en: "Pick your own design: “Vice Sunset”, “Night” with moon and stars, or “Midnight” backgrounds — plus accent colors in coral, pink, cyan and gold."),
+            (de: "Neue Einstellungen: Sekunden im Countdown an/aus, Chat-Tempo der Schreibmaschine, News direkt als Lese- oder Web-Ansicht öffnen und Haptik-Feedback an/aus.",
+             en: "New settings: countdown seconds on/off, the chat typewriter speed, opening news in the reading or web view, and haptic feedback on/off."),
+        ]),
         Entry(version: "1.5.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
             (de: "News direkt in der App lesen: Artikel antippen und im neuen Lese-Modus komplett durchlesen — sauber aufbereitet, ohne die App zu verlassen.",
              en: "Read the news right inside the app: tap an article and read it in full in the new reading view — cleanly formatted, without leaving the app."),

@@ -50,8 +50,7 @@ struct GalleryView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     ForEach(sections.indices, id: \.self) { sectionIndex in
                         let section = sections[sectionIndex]
@@ -77,7 +76,6 @@ struct GalleryView: View {
             .sheet(item: $selected) { shot in
                 fullScreen(shot)
             }
-        }
     }
 
     private func tile(_ shot: GalleryShot) -> some View {

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Vice-City-Farbwelt für v1.1.0: tiefe Sunset-Farben hinter dem Glas,
 /// damit echtes Liquid Glass Pink/Orange/Violett brechen kann.
@@ -32,7 +33,20 @@ struct AppBackdrop: View {
         ], startPoint: .top, endPoint: .bottom)
     }
 
+    @AppStorage("backdropStyle") private var backdropStyle = "sunset"
+
     var body: some View {
+        switch backdropStyle {
+        case "midnight":
+            Color.black.ignoresSafeArea()
+        case "night":
+            nightBody
+        default:
+            sunsetBody
+        }
+    }
+
+    private var sunsetBody: some View {
         ZStack {
             Self.skyGradient
             Canvas { context, size in
@@ -69,6 +83,68 @@ struct AppBackdrop: View {
             context.fill(shade, with: .linearGradient(
                 Gradient(colors: [Color.black.opacity(0.18), .clear]),
                 startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h * 0.16)))
+            }
+        }
+        .ignoresSafeArea()
+    }
+
+    /// Nacht-Variante (v1.6.0): tiefes Blau und Violett, Mond, Sterne und
+    /// Palmen-Silhouetten — dunkler und ruhiger als der Sonnenuntergang.
+    static var nightGradient: LinearGradient {
+        LinearGradient(stops: [
+            .init(color: Color(red: 0.02, green: 0.03, blue: 0.10), location: 0.0),
+            .init(color: Color(red: 0.05, green: 0.07, blue: 0.22), location: 0.35),
+            .init(color: Color(red: 0.13, green: 0.10, blue: 0.33), location: 0.62),
+            .init(color: Color(red: 0.10, green: 0.22, blue: 0.30), location: 0.85),
+            .init(color: Color(red: 0.03, green: 0.05, blue: 0.10), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+    }
+
+    private var nightBody: some View {
+        ZStack {
+            Self.nightGradient
+            Canvas { context, size in
+                let w = size.width
+                let h = size.height
+                let silhouette = Color(red: 0.01, green: 0.01, blue: 0.05)
+
+                // Sterne: fester Seed, damit sie bei jedem Zeichnen gleich stehen.
+                var seed: UInt64 = 20261119
+                func nextRandom() -> Double {
+                    seed = seed &* 6364136223846793005 &+ 1442695040888963407
+                    return Double((seed >> 33) & 0xFFFFFF) / Double(0x1000000)
+                }
+                for _ in 0..<90 {
+                    let x = nextRandom() * w
+                    let y = nextRandom() * h * 0.55
+                    let r = 0.6 + nextRandom() * 1.1
+                    let alpha = 0.25 + nextRandom() * 0.55
+                    context.fill(Path(ellipseIn: CGRect(x: x, y: y, width: r * 2, height: r * 2)), with: .color(.white.opacity(alpha)))
+                }
+
+                // Mond: Glow und Scheibe oben rechts.
+                let moonCenter = CGPoint(x: w * 0.78, y: h * 0.16)
+                let moonGlow = CGRect(x: moonCenter.x - w * 0.30, y: moonCenter.y - w * 0.30, width: w * 0.60, height: w * 0.60)
+                context.fill(Path(ellipseIn: moonGlow), with: .radialGradient(
+                    Gradient(colors: [Color(red: 0.85, green: 0.90, blue: 1.0).opacity(0.28), .clear]),
+                    center: moonCenter, startRadius: 6, endRadius: w * 0.30))
+                let moonR = w * 0.075
+                context.fill(Path(ellipseIn: CGRect(x: moonCenter.x - moonR, y: moonCenter.y - moonR, width: moonR * 2, height: moonR * 2)),
+                             with: .color(Color(red: 0.92, green: 0.94, blue: 1.0).opacity(0.95)))
+                let shadeR = moonR * 0.82
+                context.fill(Path(ellipseIn: CGRect(x: moonCenter.x - shadeR + moonR * 0.35, y: moonCenter.y - shadeR - moonR * 0.18, width: shadeR * 2, height: shadeR * 2)),
+                             with: .color(Color(red: 0.80, green: 0.84, blue: 0.96).opacity(0.35)))
+
+                // Palmen wie am Tag, nur dunkler.
+                drawPalm(&context, base: CGPoint(x: w * 0.14, y: h * 0.905), height: h * 0.25, lean: w * 0.02, color: silhouette.opacity(0.55))
+                drawPalm(&context, base: CGPoint(x: -w * 0.03, y: h * 1.01), height: h * 0.47, lean: w * 0.055, color: silhouette.opacity(0.95))
+                drawPalm(&context, base: CGPoint(x: w * 1.04, y: h * 1.02), height: h * 0.55, lean: -w * 0.065, color: silhouette.opacity(0.97))
+
+                // Leichte Abdunklung oben für die Statusleiste.
+                let shade = Path(CGRect(x: 0, y: 0, width: w, height: h * 0.16))
+                context.fill(shade, with: .linearGradient(
+                    Gradient(colors: [Color.black.opacity(0.18), .clear]),
+                    startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h * 0.16)))
             }
         }
         .ignoresSafeArea()
@@ -199,5 +275,41 @@ extension View {
                             )
                     }
             }
+    }
+}
+
+/// Wählbare Akzentfarbe (v1.6.0, Einstellung „Akzentfarbe"): färbt
+/// Tab-Tönung, Symbole und Auswahl-Elemente appweit.
+enum AccentStyle {
+    static func color(_ key: String) -> Color {
+        switch key {
+        case "pink": return Vice.pink
+        case "cyan": return Color(red: 0.15, green: 0.85, blue: 1.0)
+        case "gold": return Color(red: 1.0, green: 0.78, blue: 0.25)
+        default: return Vice.coral
+        }
+    }
+
+    static func gradient(_ key: String) -> LinearGradient {
+        switch key {
+        case "pink":
+            return LinearGradient(colors: [Vice.pink, Vice.purple], startPoint: .leading, endPoint: .trailing)
+        case "cyan":
+            return LinearGradient(colors: [Color(red: 0.15, green: 0.85, blue: 1.0), Color(red: 0.25, green: 0.45, blue: 1.0)], startPoint: .leading, endPoint: .trailing)
+        case "gold":
+            return LinearGradient(colors: [Color(red: 1.0, green: 0.78, blue: 0.25), Color(red: 1.0, green: 0.52, blue: 0.20)], startPoint: .leading, endPoint: .trailing)
+        default:
+            return Vice.sunset
+        }
+    }
+}
+
+/// Kurzes Vibrations-Feedback (v1.6.0) — nur, wenn in den
+/// Einstellungen aktiviert (Standard: an).
+enum Haptics {
+    static func tap() {
+        let enabled = UserDefaults.standard.object(forKey: "hapticsEnabled") as? Bool ?? true
+        guard enabled else { return }
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 }

@@ -29,8 +29,7 @@ struct NostalgiaView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(spacing: 16) {
                     if released {
                         leonidaCard
@@ -48,7 +47,6 @@ struct NostalgiaView: View {
             .navigationBarTitleDisplayMode(.large)
             .scrollContentBackground(.hidden)
             .background { AppBackdrop() }
-        }
     }
 
     private var wartezeitCard: some View {

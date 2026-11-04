@@ -11,7 +11,14 @@ struct ArticleReaderView: View {
     @EnvironmentObject private var store: AppStore
     @Environment(\.openURL) private var openURL
     @State private var content: ArticleService.Content?
-    @State private var showWeb = false
+    @State private var showWeb: Bool
+
+    /// Start-Ansicht aus den Einstellungen (v1.6.0): „Web-Ansicht" als
+    /// Standard öffnet Artikel direkt als Webseite, sonst Lese-Ansicht.
+    init(item: NewsItem) {
+        self.item = item
+        _showWeb = State(initialValue: UserDefaults.standard.string(forKey: "newsOpenMode") == "web")
+    }
     @State private var appeared = false
     @State private var progress: Double = 0
 
@@ -36,15 +43,16 @@ struct ArticleReaderView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    if content != nil {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.25)) { showWeb.toggle() }
-                        } label: {
-                            Label(
-                                store.tr(showWeb ? "Lese-Ansicht" : "Web-Ansicht", showWeb ? "Reading view" : "Web view"),
-                                systemImage: showWeb ? "text.alignleft" : "globe"
-                            )
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) { showWeb.toggle() }
+                        if !showWeb && content == nil {
+                            Task { await load() }
                         }
+                    } label: {
+                        Label(
+                            store.tr(showWeb ? "Lese-Ansicht" : "Web-Ansicht", showWeb ? "Reading view" : "Web view"),
+                            systemImage: showWeb ? "text.alignleft" : "globe"
+                        )
                     }
                     Button {
                         openURL(item.link)

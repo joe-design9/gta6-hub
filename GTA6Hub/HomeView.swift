@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var oracleIndex: Int?
     @State private var oracleStars = 0
     @State private var factOffset = 0
+    @AppStorage("countdownShowSeconds") private var showSeconds = true
 
     var body: some View {
         NavigationStack {
@@ -53,7 +54,7 @@ struct HomeView: View {
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(.white.opacity(0.6))
                     }
-                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                    TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                         let now = EffectiveNow.value(context.date)
                         if now >= GTA6.releaseDate {
                             HStack {
@@ -71,7 +72,9 @@ struct HomeView: View {
                                 miniTile(value: interval / 86400, label: store.tr("TAGE", "DAYS"))
                                 miniTile(value: (interval % 86400) / 3600, label: store.tr("STD", "HRS"))
                                 miniTile(value: (interval % 3600) / 60, label: "MIN")
-                                miniTile(value: interval % 60, label: store.tr("SEK", "SEC"))
+                                if showSeconds {
+                                    miniTile(value: interval % 60, label: store.tr("SEK", "SEC"))
+                                }
                             }
                         }
                     }
@@ -146,7 +149,7 @@ struct HomeView: View {
     private var quickActions: some View {
         HStack(spacing: 12) {
             quickButton(icon: "sparkles", title: store.tr("\(store.assistantDisplayName) fragen", "Ask \(store.assistantDisplayName)"), tab: 2)
-            quickButton(icon: "photo.on.rectangle.angled", title: "Screenshots", tab: 4)
+            quickButton(icon: "photo.on.rectangle.angled", title: store.tr("Galerie & Mehr", "Gallery & More"), tab: 4)
         }
     }
 
