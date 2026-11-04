@@ -98,11 +98,13 @@ jobs:
           capture countdown -UITestMode -QAStartTab 1
           capture chat -UITestMode -QAStartTab 2
           capture news -UITestMode -QAStartTab 3
-          capture gallery -UITestMode -QAStartTab 4
-          capture map -UITestMode -QAStartTab 5
-          capture nostalgia -UITestMode -QAStartTab 6
-          capture settings -UITestMode -QAStartTab 7
-          capture updatenews -UITestMode -QAStartTab 8
+          capture gallery -UITestMode -QAGallery
+          capture map -UITestMode -QAMap
+          capture nostalgia -UITestMode -QANostalgia
+          capture morehub -UITestMode -QAStartTab 4
+          capture settings -UITestMode -QASettings
+          capture settings-design -UITestMode -QASettings -QASettingsDesign
+          capture updatenews -UITestMode -QAUpdateNews
           capture chat-empty -QAStartTab 2
           capture tips -UITestMode -QATips
           capture tips-scrolled -UITestMode -QATipsScrolled
