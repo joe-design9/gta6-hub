@@ -23,6 +23,9 @@ final class AppStore: ObservableObject {
     @Published var qaShowCharacters = false
     @Published var qaShowPlaces = false
     @Published var qaShowChecklist = false
+    /// QA-Screenshot der Lese-Ansicht (-QAArticle, v1.5.0): Die News-
+    /// Ansicht öffnet damit automatisch den ersten Artikel.
+    @Published var qaShowArticle = false
     #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
@@ -80,6 +83,7 @@ final class AppStore: ObservableObject {
         qaShowCharacters = args.contains("-QACharacters")
         qaShowPlaces = args.contains("-QAPlaces")
         qaShowChecklist = args.contains("-QAChecklist")
+        qaShowArticle = args.contains("-QAArticle")
         seedUITestDataIfRequested()
         #endif
     }

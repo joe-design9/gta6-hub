@@ -1,6 +1,6 @@
 import Foundation
 
-struct NewsItem: Identifiable, Equatable {
+struct NewsItem: Identifiable, Equatable, Hashable {
     let id = UUID()
     var title: String
     var source: String

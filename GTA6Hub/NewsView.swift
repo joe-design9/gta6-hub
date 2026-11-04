@@ -2,10 +2,10 @@ import SwiftUI
 
 struct NewsView: View {
     @EnvironmentObject private var store: AppStore
-    @Environment(\.openURL) private var openURL
+    @State private var path: [NewsItem] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if store.news.isEmpty && store.newsLoading {
                     ProgressView(store.tr("Lade News …", "Loading news …"))
@@ -19,8 +19,23 @@ struct NewsView: View {
             }
             .navigationTitle("GTA 6 News")
             .navigationBarTitleDisplayMode(.large)
+            .navigationDestination(for: NewsItem.self) { item in
+                ArticleReaderView(item: item)
+            }
             .task { await store.loadNews() }
+            .onChange(of: store.news) { _, newItems in
+                openArticleForQA(newItems)
+            }
         }
+    }
+
+    /// QA-Aufnahme der Lese-Ansicht (-QAArticle, nur QA-Build):
+    /// öffnet automatisch den ersten Artikel der Liste.
+    private func openArticleForQA(_ items: [NewsItem]) {
+        #if QA
+        guard store.qaShowArticle, path.isEmpty, let first = items.first else { return }
+        path.append(first)
+        #endif
     }
 
     private func updatedLabel(_ date: Date) -> String {
@@ -47,6 +62,7 @@ struct NewsView: View {
                     newsCard(item)
                 }
             }
+            .animation(.easeOut(duration: 0.35), value: store.news.count)
             .padding(.horizontal, 16)
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -57,9 +73,9 @@ struct NewsView: View {
     }
 
     private func newsCard(_ item: NewsItem) -> some View {
-        Button {
-            openURL(item.link)
-        } label: {
+        // Antippen öffnet die Lese-Ansicht in der App (v1.5.0) —
+        // kein Wechsel mehr in den Browser.
+        NavigationLink(value: item) {
             GlassCard(cornerRadius: 22) {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
@@ -75,6 +91,13 @@ struct NewsView: View {
                         .font(.headline)
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.leading)
+                    HStack(spacing: 4) {
+                        Image(systemName: "book.pages")
+                            .font(.caption2)
+                        Text(store.tr("In der App lesen", "Read in the app"))
+                            .font(.caption2.weight(.semibold))
+                    }
+                    .foregroundStyle(.white.opacity(0.55))
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)

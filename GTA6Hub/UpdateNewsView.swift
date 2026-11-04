@@ -15,6 +15,14 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "1.5.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
+            (de: "News direkt in der App lesen: Artikel antippen und im neuen Lese-Modus komplett durchlesen — sauber aufbereitet, ohne die App zu verlassen.",
+             en: "Read the news right inside the app: tap an article and read it in full in the new reading view — cleanly formatted, without leaving the app."),
+            (de: "Lese-Ansicht mit Fortschrittsbalken, Artikelbild, Lesezeit und Teilen-Button — und mit Web-Ansicht als Rückfall, falls ein Artikel einmal nicht aufbereitet werden kann.",
+             en: "Reading view with a progress bar, article image, reading time and a share button — plus a web view fallback whenever an article can't be extracted."),
+            (de: "Flüssiger überall: weichere Übergänge und Animationen in der News-Liste und beim Lesen.",
+             en: "Smoother everywhere: softer transitions and animations in the news list and while reading."),
+        ]),
         Entry(version: "1.4.1", dateDE: "November 2026", dateEN: "November 2026", highlights: [
             (de: "Nachrichten laufen flüssig ein: Antworten tippen sich Stück für Stück ein, statt als ganzer Block zu erscheinen.",
              en: "Messages flow in smoothly: replies now type in piece by piece instead of appearing as one whole block."),
