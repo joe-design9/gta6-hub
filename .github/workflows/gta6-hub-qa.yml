@@ -96,6 +96,8 @@ jobs:
           capture onboarding -QAOnboarding
           capture home -UITestMode
           capture countdown -UITestMode -QAStartTab 1
+          capture preload -UITestMode -QAPreload
+          capture preload-slow -UITestMode -QAPreloadSlow
           capture chat -UITestMode -QAStartTab 2
           capture news -UITestMode -QAStartTab 3
           capture gallery -UITestMode -QAGallery
