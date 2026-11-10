@@ -15,6 +15,14 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "1.7.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
+            (de: "Neu: der Preload-Rechner — Leitung einstellen (5 bis 1.000 Mbit/s, Schieberegler oder eigener Wert) und sofort sehen, wie lange die 209,8 GB brauchen und um wie viel Uhr der Download fertig wäre. Auf Wunsch realistisch mit ca. 90 % der Leitung gerechnet.",
+             en: "New: the preload calculator — set your line speed (5 to 1,000 Mbps, slider or custom value) and instantly see how long the 209.8 GB take and what time the download would finish. Optionally calculated realistically at about 90% of your line."),
+            (de: "Launch-Status im Countdown: Der Preload ist als abgeschlossen markiert — 209,8 GB, kompletter globaler Build. Dazu zeigt der Rechner die Unlock-Zeiten weltweit, von Wellington bis Los Angeles, jeweils mit der Uhrzeit bei dir in Berlin.",
+             en: "Launch status in the countdown: the preload is marked complete — 209.8 GB, the full global build. The calculator also lists the worldwide unlock times, from Wellington to Los Angeles, each with the time in Berlin."),
+            (de: "Die bestätigten Fakten vom 10. November sind an Bord: Xbox Cloud Gaming bis runter zur Xbox One, 30-FPS-Ziel auf den Basiskonsolen, PS5-Pro-Extras (PSSR + Raytracing-Schatten), DualSense-Haptik mit Tempest 3D Audio und Tove Los „Blood in Your Eyes“ aus „GTA VI: The Album“.",
+             en: "The confirmed facts from November 10 are in: Xbox Cloud Gaming down to the Xbox One, a 30 FPS target on the base consoles, PS5 Pro extras (PSSR + ray-traced shadows), DualSense haptics with Tempest 3D Audio, and Tove Lo's “Blood in Your Eyes” from “GTA VI: The Album”."),
+        ]),
         Entry(version: "1.6.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
             (de: "Die „Mehr“-Seite ist jetzt eine eigene Hub-Seite im Vice-Look — Sonnenuntergang und Palmen statt der schwarzen iOS-Standardliste.",
              en: "The “More” page is now the Hub's own page in the Vice look — sunset and palms instead of the black iOS stock list."),

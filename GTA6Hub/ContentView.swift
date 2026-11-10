@@ -90,6 +90,10 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $store.qaShowUpdateNews) {
             NavigationStack { UpdateNewsView() }
         }
+        // QA-Aufnahme des Preload-Rechners (v1.7.0).
+        .fullScreenCover(isPresented: $store.qaShowPreload) {
+            NavigationStack { PreloadView() }
+        }
         #endif
     }
 

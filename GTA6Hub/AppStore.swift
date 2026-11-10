@@ -33,6 +33,9 @@ final class AppStore: ObservableObject {
     @Published var qaShowNostalgia = false
     @Published var qaShowSettings = false
     @Published var qaShowUpdateNews = false
+    /// QA-Screenshot des Preload-Rechners (v1.7.0, -QAPreload /
+    /// -QAPreloadSlow für die Ansicht mit 5-Mbit/s-Leitung).
+    @Published var qaShowPreload = false
     /// QA-Aufnahme der Design-Karte (-QASettingsDesign): Die Einstellungen
     /// scrollen damit direkt zu den neuen Design-Optionen.
     @Published var qaShowSettingsDesign = false
@@ -99,6 +102,11 @@ final class AppStore: ObservableObject {
         qaShowNostalgia = args.contains("-QANostalgia")
         qaShowSettings = args.contains("-QASettings")
         qaShowUpdateNews = args.contains("-QAUpdateNews")
+        qaShowPreload = args.contains("-QAPreload") || args.contains("-QAPreloadSlow")
+        // Langsame Leitung für die zweite Rechner-Aufnahme (v1.7.0).
+        if args.contains("-QAPreloadSlow") {
+            UserDefaults.standard.set(5.0, forKey: "preloadCalcSpeed")
+        }
         qaShowSettingsDesign = args.contains("-QASettingsDesign")
         seedUITestDataIfRequested()
         #endif

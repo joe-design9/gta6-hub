@@ -48,6 +48,10 @@ struct MoreHubView: View {
                     NostalgiaView()
                 }
                 divider
+                hubRow(icon: "arrow.down.circle.fill", title: store.tr("Preload-Rechner", "Preload Calculator"), note: store.tr("209,8 GB: Download-Zeit je nach Leitung, Launch-Status & Unlock-Zeiten", "209.8 GB: download time by line speed, launch status & unlock times")) {
+                    PreloadView()
+                }
+                divider
                 hubRow(icon: "gearshape.fill", title: store.tr("Einstellungen", "Settings"), note: store.tr("Design, Sprache, KI-Engine & mehr", "Design, language, AI engine & more")) {
                     SettingsView()
                 }

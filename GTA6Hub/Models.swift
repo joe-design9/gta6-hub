@@ -74,7 +74,7 @@ enum GTA6 {
         return Calendar(identifier: .gregorian).date(from: c) ?? Date()
     }
 
-    /// Die zwölf Fakten des Tages (Start-Tab + Siri-Intent, v1.4.0).
+    /// Die Fakten des Tages (Start-Tab + Siri-Intent, v1.4.0; v1.7.0: +3).
     static let dailyFacts: [(de: String, en: String)] = [
         (de: "Trailer 1 erschien am 5. Dezember 2023 — vom ersten Trailer bis zum Release vergehen ganze 1.080 Tage.",
          en: "Trailer 1 dropped on December 5, 2023 — a full 1,080 days pass between the first trailer and release."),
@@ -100,6 +100,12 @@ enum GTA6 {
          en: "You can spot Cal Hampton instantly: bucket hat, sunglasses and an alien-print Hawaiian shirt."),
         (de: "Raul Bautista ist ein Bankräuber-Veteran — bei der großen Flucht sitzt er mit Jason und Lucia im Auto.",
          en: "Raul Bautista is a veteran bank robber — during the big escape he rides in the car with Jason and Lucia."),
+        (de: "Der Preload wiegt 209,8 GB — der komplette globale Build, ungeschnitten und bis zum Unlock verschlüsselt.",
+         en: "The preload weighs in at 209.8 GB — the full global build, uncut and encrypted until unlock."),
+        (de: "GTA 6 läuft per Xbox Cloud Gaming sogar auf der Xbox One — gestreamt mit den Grafik-Einstellungen der Series S.",
+         en: "Thanks to Xbox Cloud Gaming, GTA 6 even runs on the Xbox One — streamed with the Series S graphics settings."),
+        (de: "„Blood in Your Eyes“ von Tove Lo stammt aus „GTA VI: The Album“ — zu hören im Preload-Spot vom 10. November.",
+         en: "“Blood in Your Eyes” by Tove Lo is from “GTA VI: The Album” — heard in the preload spot on November 10."),
     ]
 
     /// Fakt des Tages nach derselben Tages-Formel wie im Start-Tab.

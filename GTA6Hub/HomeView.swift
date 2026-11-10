@@ -22,6 +22,7 @@ struct HomeView: View {
                     exploreRow
                     tipsCard
                     checklistCard
+                    preloadCard
                     oracleCard
                 }
                 .padding(.horizontal, 16)
@@ -312,6 +313,49 @@ struct HomeView: View {
                         Text(store.tr(
                             "Preload, Controller, Snacks: Hak Punkt für Punkt ab und sieh im Fortschrittsring, wie launchfertig du bist.",
                             "Preload, controllers, snacks: tick everything off and watch the progress ring show how launch-ready you are."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Preload-Rechner (v1.7.0)
+
+    private var preloadCard: some View {
+        NavigationLink {
+            PreloadView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("PRELOAD-RECHNER", "PRELOAD CALCULATOR"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("Wie lange lädt deine Leitung?", "How long does your line take?"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Preload ✅ durch (209,8 GB). Der Rechner zeigt, wie lange der Download mit jeder Leitung gedauert hätte — plus Unlock-Zeiten weltweit.",
+                            "Preload ✅ done (209.8 GB). The calculator shows how long the download would take on any line — plus worldwide unlock times."
                         ))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.65))

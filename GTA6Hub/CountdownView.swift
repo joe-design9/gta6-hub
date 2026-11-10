@@ -14,7 +14,12 @@ struct CountdownView: View {
                 VStack(spacing: 16) {
                     countdownCard
                     if EffectiveNow.value(Date()) < GTA6.releaseDate {
-                        preloadCard
+                        if EffectiveNow.value(Date()) >= GTA6.preloadDate {
+                            preloadDoneCard
+                        } else {
+                            preloadCard
+                        }
+                        rechnerLinkCard
                     }
                     totalsCard
                     progressCard
@@ -152,6 +157,85 @@ struct CountdownView: View {
             }
             .padding(20)
         }
+    }
+
+    // MARK: - Preload-Status (abgeschlossen, v1.7.0)
+
+    private var preloadDoneCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    Text("PRELOAD")
+                        .font(.caption.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(Vice.sunset)
+                    Spacer()
+                    Text("10.11.2026")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                HStack(spacing: 10) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.green)
+                    Text(store.tr("ABGESCHLOSSEN", "COMPLETE"))
+                        .font(.title3.weight(.bold))
+                        .foregroundStyle(.white)
+                }
+                Text(store.tr(
+                    "Die 209,8 GB liegen auf der PS5 — der komplette globale Build, verschlüsselt bis zum Unlock. Jetzt zählt nur noch der Countdown oben bis Mitternacht. 🌴",
+                    "The 209.8 GB are on the PS5 — the full global build, encrypted until unlock. Now only the countdown above to midnight matters. 🌴"
+                ))
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.75))
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // MARK: - Link zum Preload-Rechner (v1.7.0)
+
+    private var rechnerLinkCard: some View {
+        NavigationLink {
+            PreloadView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("PRELOAD-RECHNER", "PRELOAD CALCULATOR"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("Wie lange lädt deine Leitung?", "How long does your line take?"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "209,8 GB durchrechnen — Dauer und Fertig-Uhrzeit je nach Mbit/s, dazu Unlock-Zeiten weltweit und die bestätigten Fakten vom 10. November.",
+                            "Run the numbers on 209.8 GB — duration and finish time for your Mbps, plus worldwide unlock times and the confirmed facts from November 10."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Gesamtwerte (Stunden / Minuten / Sekunden)
