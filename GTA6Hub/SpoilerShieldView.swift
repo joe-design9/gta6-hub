@@ -178,7 +178,8 @@ struct SpoilerShieldView: View {
                 #if QA
                 // QA-Aufnahme des Wellen-Zeitplans (-QASpoilerWave):
                 // direkt dorthin scrollen, damit er im Bild liegt.
-                if ProcessInfo.processInfo.arguments.contains("-QASpoilerWave") {
+                let args = ProcessInfo.processInfo.arguments
+                if args.contains("-QASpoilerWave") || args.contains("-QATipsScrolled") {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                         withAnimation { proxy.scrollTo("spoiler-waves", anchor: .top) }
                     }
@@ -349,20 +350,22 @@ struct SpoilerShieldView: View {
     }
 
     private var platformPills: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 84), spacing: 8)], alignment: .leading, spacing: 8) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 8)], alignment: .leading, spacing: 8) {
             ForEach(MutePlatform.allCases) { item in
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) { platform = item }
                     Haptics.tap()
                 } label: {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 5) {
                         Image(systemName: item.icon)
                             .font(.caption2)
                         Text(item.name)
                             .font(.caption.weight(.bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 8)
                     .padding(.vertical, 9)
                     .frame(maxWidth: .infinity)
                     .background {
