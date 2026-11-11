@@ -15,6 +15,38 @@ struct NewsItem: Identifiable, Equatable, Hashable {
     }
 }
 
+/// Ein gemerktes Lesezeichen (v2.0.0) — mit eigenem Schnappschuss von
+/// Titel und Quelle, damit es auch nach dem nächsten News-Laden noch
+/// in der Liste steht.
+struct SavedArticle: Identifiable, Codable, Equatable {
+    var link: String
+    var title: String
+    var source: String
+    var savedAt: Date
+
+    var id: String { link }
+
+    init(_ item: NewsItem) {
+        link = item.link.absoluteString
+        title = item.title
+        source = item.source
+        savedAt = Date()
+    }
+
+    /// Zurück in einen NewsItem, damit die Lese-Ansicht direkt öffnet.
+    var asNewsItem: NewsItem? {
+        guard let url = URL(string: link) else { return nil }
+        return NewsItem(title: title, source: source, link: url, published: savedAt)
+    }
+
+    var relativeTime: String {
+        let f = RelativeDateTimeFormatter()
+        f.locale = Lang.locale
+        f.unitsStyle = .short
+        return f.localizedString(for: savedAt, relativeTo: Date())
+    }
+}
+
 struct ChatMessage: Identifiable, Equatable {
     let id = UUID()
     var role: Role

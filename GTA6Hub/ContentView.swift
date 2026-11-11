@@ -94,6 +94,10 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $store.qaShowPreload) {
             NavigationStack { PreloadView() }
         }
+        // QA-Aufnahme des Spoiler-Schutz-Hubs (v2.0.0).
+        .fullScreenCover(isPresented: $store.qaShowSpoiler) {
+            NavigationStack { SpoilerShieldView() }
+        }
         #endif
     }
 

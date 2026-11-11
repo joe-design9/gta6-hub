@@ -205,6 +205,7 @@ struct TipsView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     introCard
+                    spoilerHubCard
                     ForEach(categories) { category in
                         categoryCard(category)
                     }
@@ -260,6 +261,50 @@ struct TipsView: View {
             .frame(maxWidth: .infinity)
             .padding(22)
         }
+    }
+
+    /// Prominenter Weg in den Spoiler-Schutz-Hub (v2.0.0): Die Tipps
+    /// hier sind die Kurzfassung, dort liegen Mute-Listen, Zeitplan und
+    /// die interaktive Launch-Tag-Checkliste.
+    private var spoilerHubCard: some View {
+        NavigationLink {
+            SpoilerShieldView()
+        } label: {
+            GlassCard {
+                HStack(spacing: 14) {
+                    Image(systemName: "eye.slash.fill")
+                        .font(.title3)
+                        .foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Capsule().fill(Vice.sunset)
+                        }
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(store.tr("SPOILER-SCHUTZ-HUB", "SPOILER SHIELD HUB"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("Der komplette Schutzschild", "The full shield"))
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Mute-Listen zum Kopieren, der Spoiler-Wellen-Zeitplan und die Launch-Tag-Checkliste.",
+                            "Copy-and-paste mute lists, the spoiler wave schedule and the launch-day checklist."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.65))
+                        .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Vice.coral)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     private func categoryCard(_ category: TipCategory) -> some View {
