@@ -405,31 +405,36 @@ struct GlassCard<Content: View>: View {
 
     private var showsGlow: Bool { glow && glowEnabled }
 
+    /// Der Glow sitzt im Glas selbst (getönter Glaseffekt + weicher
+    /// Akzent-Schatten). So braucht die Karte keine zusätzliche Ebene
+    /// hinter dem Glas — das bleibt schnell und rendert sauber.
+    private var glassTint: Color {
+        showsGlow
+            ? AccentStyle.color(accentColor).opacity(pulsing ? 0.16 : 0.07)
+            : Color.white.opacity(0.08)
+    }
+
+    private var glowShadow: Color {
+        showsGlow ? AccentStyle.color(accentColor).opacity(pulsing ? 0.32 : 0.14) : .clear
+    }
+
     var body: some View {
         content
             .background {
-                ZStack {
-                    if showsGlow {
-                        RoundedRectangle(cornerRadius: cornerRadius + 12, style: .continuous)
-                            .fill(AccentStyle.color(accentColor).opacity(pulsing ? 0.30 : 0.12))
-                            .blur(radius: 18)
-                            .padding(-7)
-                            .allowsHitTesting(false)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(.clear)
+                    .glassEffect(.regular.tint(glassTint), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.30), Color.white.opacity(0.04)],
+                                    startPoint: .top, endPoint: .bottom
+                                ),
+                                lineWidth: 1
+                            )
                     }
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .fill(.clear)
-                        .glassEffect(.regular.tint(.white.opacity(0.08)), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                                .strokeBorder(
-                                    LinearGradient(
-                                        colors: [Color.white.opacity(0.30), Color.white.opacity(0.04)],
-                                        startPoint: .top, endPoint: .bottom
-                                    ),
-                                    lineWidth: 1
-                                )
-                        }
-                }
+                    .shadow(color: glowShadow, radius: showsGlow ? 14 : 0)
             }
             .onAppear {
                 guard showsGlow, !reduceMotion else { return }

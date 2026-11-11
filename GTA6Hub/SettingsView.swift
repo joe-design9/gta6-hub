@@ -401,6 +401,8 @@ struct SettingsView: View {
             Text(title)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 9)
                 .background {

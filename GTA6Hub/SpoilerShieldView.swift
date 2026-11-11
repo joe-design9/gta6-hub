@@ -102,9 +102,24 @@ enum SpoilerGuard {
     ]
 
     /// Welches Trigger-Wort den Artikel markiert (nil = unbedenklich).
+    /// Einzelne Wörter werden als ganze Wörter geprüft (mit üblichen
+    /// Endungen), damit „Extended“ nicht über „ende“ anschlägt; mehrteilige
+    /// Begriffe werden als Wortfolge im Titel gesucht.
     static func matchedTrigger(in title: String) -> String? {
         let lower = title.lowercased()
-        return triggers.first { lower.contains($0) }
+        let words = lower
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map(String.init)
+        for trigger in triggers {
+            if trigger.contains(" ") || trigger.contains("-") {
+                if lower.contains(trigger) { return trigger }
+                continue
+            }
+            for word in words where word.hasPrefix(trigger) && word.count <= trigger.count + 3 {
+                return trigger
+            }
+        }
+        return nil
     }
 
     static func isSensitive(title: String) -> Bool {

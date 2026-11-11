@@ -262,7 +262,9 @@ struct NewsView: View {
                             .foregroundStyle(.white.opacity(0.55))
                         }
                     }
-                    .padding(16)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, hidden ? 44 : 16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
