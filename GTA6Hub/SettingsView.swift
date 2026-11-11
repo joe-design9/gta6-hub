@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage("typewriterSpeed") private var typewriterSpeed = 1
     @AppStorage("newsOpenMode") private var newsOpenMode = "reader"
     @AppStorage("hapticsEnabled") private var hapticsEnabled = true
+    @AppStorage("cardGlowEnabled") private var cardGlowEnabled = true
+    @AppStorage("spoilerFilterEnabled") private var spoilerFilterEnabled = true
 
     var body: some View {
         ScrollViewReader { proxy in
@@ -57,6 +59,10 @@ struct SettingsView: View {
     private var exploreCard: some View {
         GlassCard {
             VStack(spacing: 0) {
+                exploreRow(icon: "eye.slash.fill", title: store.tr("Spoiler-Schutz-Hub", "Spoiler Shield Hub"), note: store.tr("Mute-Listen, Spoiler-Wellen-Zeitplan & Launch-Tag-Checkliste", "Mute lists, spoiler wave schedule & launch-day checklist")) {
+                    SpoilerShieldView()
+                }
+                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 74)
                 exploreRow(icon: "theatermasks.fill", title: store.tr("Charaktere", "Characters"), note: store.tr("Jason, Lucia & die Gesichter von Leonida", "Jason, Lucia & the faces of Leonida")) {
                     CharactersView()
                 }
@@ -334,12 +340,19 @@ struct SettingsView: View {
                 Text(store.tr("Hintergrund", "Background"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.7))
-                HStack(spacing: 10) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 78), spacing: 8)], alignment: .leading, spacing: 8) {
                     backdropPill(title: "Vice Sunset", key: "sunset")
                     backdropPill(title: store.tr("Nacht", "Night"), key: "night")
+                    backdropPill(title: store.tr("Neon", "Neon"), key: "neon")
                     backdropPill(title: "Midnight", key: "midnight")
-                    Spacer()
                 }
+                Text(store.tr(
+                    "„Neon“ ist Electric Vice City bei Nacht: magenta Sonne, cyanfarbener Horizont, Perspektiv-Grid und ein atmender Glow.",
+                    "“Neon” is Electric Vice City at night: a magenta sun, a cyan horizon, a perspective grid and a breathing glow."
+                ))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.55))
+                .fixedSize(horizontal: false, vertical: true)
                 Text(store.tr("Akzentfarbe", "Accent color"))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.7))
@@ -362,6 +375,18 @@ struct SettingsView: View {
                     }
                 }
                 .tint(AccentStyle.color(accentColor))
+                Divider().overlay(Color.white.opacity(0.12))
+                Toggle(isOn: $cardGlowEnabled) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.tr("Glow hinter den Karten", "Glow behind the cards"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(store.tr("Die Glasflächen pulsieren sanft in der Akzentfarbe.", "The glass panels gently pulse in the accent color."))
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.55))
+                    }
+                }
+                .tint(AccentStyle.color(accentColor))
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -376,6 +401,8 @@ struct SettingsView: View {
             Text(title)
                 .font(.caption.weight(.bold))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 9)
                 .background {
@@ -448,6 +475,22 @@ struct SettingsView: View {
                     newsModePill(title: store.tr("Web-Ansicht", "Web view"), key: "web")
                     Spacer()
                 }
+                Divider().overlay(Color.white.opacity(0.12))
+                Toggle(isOn: $spoilerFilterEnabled) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(store.tr("Spoiler-Filter (Leak-Schutz)", "Spoiler filter (leak protection)"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text(store.tr(
+                            "Verdeckt spoilergefährliche Schlagzeilen im News-Feed und warnt vor dem Artikel.",
+                            "Covers spoiler-prone headlines in the news feed and warns before the article."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.55))
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .tint(AccentStyle.color(accentColor))
                 Text(store.tr(
                     "Die Lese-Ansicht bereitet Artikel direkt in der App auf. In jeder News kannst du oben rechts jederzeit umschalten.",
                     "The reading view formats articles right inside the app. You can switch any time from the menu in each article."

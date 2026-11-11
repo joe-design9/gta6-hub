@@ -8,6 +8,9 @@ enum Vice {
     static let orange = Color(red: 1.0, green: 0.55, blue: 0.20)
     static let coral = Color(red: 1.0, green: 0.45, blue: 0.38)
     static let purple = Color(red: 0.62, green: 0.36, blue: 0.95)
+    /// Neon-Palette (v2.0.0): Electric Vice City für den Neon-Hintergrund.
+    static let cyan = Color(red: 0.10, green: 0.92, blue: 1.00)
+    static let magenta = Color(red: 1.00, green: 0.16, blue: 0.73)
 
     static var sunset: LinearGradient {
         LinearGradient(colors: [pink, orange], startPoint: .leading, endPoint: .trailing)
@@ -35,12 +38,16 @@ struct AppBackdrop: View {
 
     @AppStorage("backdropStyle") private var backdropStyle = "sunset"
 
+    init() {}
+
     var body: some View {
         switch backdropStyle {
         case "midnight":
             Color.black.ignoresSafeArea()
         case "night":
             nightBody
+        case "neon":
+            neonBody
         default:
             sunsetBody
         }
@@ -150,6 +157,152 @@ struct AppBackdrop: View {
         .ignoresSafeArea()
     }
 
+    /// Neon-Variante (v2.0.0): Electric Vice City bei Nacht — magenta Sonne
+    /// mit Retrostreifen, cyanfarbener Horizont, Skyline mit beleuchteten
+    /// Fenstern, Perspektiv-Grid und Palmen. Dazu ein langsam atmender
+    /// Glow, damit das Glas darüber lebt.
+    static var neonGradient: LinearGradient {
+        LinearGradient(stops: [
+            .init(color: Color(red: 0.02, green: 0.01, blue: 0.09), location: 0.0),
+            .init(color: Color(red: 0.09, green: 0.02, blue: 0.25), location: 0.26),
+            .init(color: Color(red: 0.34, green: 0.03, blue: 0.47), location: 0.48),
+            .init(color: Color(red: 0.79, green: 0.07, blue: 0.54), location: 0.62),
+            .init(color: Color(red: 0.06, green: 0.55, blue: 0.78), location: 0.71),
+            .init(color: Color(red: 0.02, green: 0.02, blue: 0.09), location: 0.79),
+            .init(color: Color(red: 0.01, green: 0.00, blue: 0.04), location: 1.0),
+        ], startPoint: .top, endPoint: .bottom)
+    }
+
+    @State private var neonPulse = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private var neonBody: some View {
+        ZStack {
+            Self.neonGradient
+            Canvas { context, size in
+                let w = size.width
+                let h = size.height
+                let horizonY = h * 0.72
+                let silhouette = Color(red: 0.02, green: 0.01, blue: 0.06)
+
+                // Sterne oben, fester Seed.
+                var seed: UInt64 = 20261119
+                func rnd() -> Double {
+                    seed = seed &* 6364136223846793005 &+ 1442695040888963407
+                    return Double((seed >> 33) & 0xFFFFFF) / Double(0x1000000)
+                }
+                for _ in 0..<70 {
+                    let x = rnd() * w
+                    let y = rnd() * h * 0.50
+                    let r = 0.5 + rnd() * 1.0
+                    context.fill(Path(ellipseIn: CGRect(x: x, y: y, width: r * 2, height: r * 2)),
+                                 with: .color(.white.opacity(0.20 + rnd() * 0.45)))
+                }
+
+                // Sonnenscheibe mit Retrostreifen.
+                let sunCenter = CGPoint(x: w * 0.50, y: horizonY - h * 0.085)
+                let sunR = w * 0.21
+                let sunRect = CGRect(x: sunCenter.x - sunR, y: sunCenter.y - sunR, width: sunR * 2, height: sunR * 2)
+                let haloRect = CGRect(x: sunCenter.x - w * 0.55, y: sunCenter.y - w * 0.55, width: w * 1.1, height: w * 1.1)
+                context.fill(Path(ellipseIn: haloRect), with: .radialGradient(
+                    Gradient(colors: [Vice.magenta.opacity(0.42), Vice.purple.opacity(0.12), .clear]),
+                    center: sunCenter, startRadius: 8, endRadius: w * 0.55))
+                context.drawLayer { layer in
+                    layer.clip(to: Path(ellipseIn: sunRect))
+                    layer.fill(Path(sunRect), with: .linearGradient(
+                        Gradient(colors: [Color(red: 1.0, green: 0.85, blue: 0.55), Vice.orange, Vice.magenta, Vice.purple]),
+                        startPoint: CGPoint(x: sunCenter.x, y: sunRect.minY),
+                        endPoint: CGPoint(x: sunCenter.x, y: sunRect.maxY)))
+                    var stripeY = sunCenter.y - sunR * 0.05
+                    var stripeHeight: CGFloat = 1.2
+                    while stripeY < sunRect.maxY {
+                        layer.fill(Path(CGRect(x: sunRect.minX, y: stripeY, width: sunRect.width, height: stripeHeight)),
+                                   with: .color(Color(red: 0.10, green: 0.01, blue: 0.16).opacity(0.82)))
+                        stripeY += stripeHeight + sunR * 0.09
+                        stripeHeight *= 1.22
+                    }
+                }
+
+                // Skyline mit beleuchteten Fenstern.
+                var buildingX = -w * 0.04
+                while buildingX < w * 1.04 {
+                    let bw = w * CGFloat(0.030 + rnd() * 0.055)
+                    let bh = h * CGFloat(0.025 + rnd() * 0.105)
+                    let rect = CGRect(x: buildingX, y: horizonY - bh, width: bw, height: bh + 2)
+                    context.fill(Path(rect), with: .color(Color(red: 0.03, green: 0.01, blue: 0.09).opacity(0.96)))
+                    let cols = max(1, Int(bw / (w * 0.013)))
+                    let rows = max(1, Int(bh / (h * 0.021)))
+                    for col in 0..<cols {
+                        for row in 0..<rows {
+                            guard rnd() > 0.58 else { continue }
+                            let wx = rect.minX + CGFloat(col) * (bw / CGFloat(cols)) + 1.5
+                            let wy = rect.minY + CGFloat(row) * (bh / CGFloat(rows)) + 1.5
+                            let lit = rnd() > 0.5 ? Vice.cyan : Vice.magenta
+                            context.fill(Path(CGRect(x: wx, y: wy, width: 2.2, height: 2.2)),
+                                         with: .color(lit.opacity(0.7)))
+                        }
+                    }
+                    buildingX += bw + w * 0.006
+                }
+
+                // Horizont-Band in Cyan.
+                context.fill(Path(CGRect(x: 0, y: horizonY - 1, width: w, height: 2.5)),
+                             with: .color(Vice.cyan.opacity(0.55)))
+                context.fill(Path(CGRect(x: 0, y: horizonY - h * 0.02, width: w, height: h * 0.04)),
+                             with: .linearGradient(
+                                Gradient(colors: [.clear, Vice.cyan.opacity(0.18), .clear]),
+                                startPoint: CGPoint(x: 0, y: horizonY - h * 0.02),
+                                endPoint: CGPoint(x: 0, y: horizonY + h * 0.02)))
+
+                // Perspektiv-Grid auf dem Boden.
+                var lineOffset: CGFloat = 1.4
+                var spacing: CGFloat = 1.1
+                while horizonY + lineOffset < h {
+                    let y = horizonY + lineOffset
+                    var line = Path()
+                    line.move(to: CGPoint(x: 0, y: y))
+                    line.addLine(to: CGPoint(x: w, y: y))
+                    context.stroke(line, with: .color(Vice.cyan.opacity(0.16)), lineWidth: 0.8)
+                    lineOffset += spacing * 1.9
+                    spacing *= 1.30
+                }
+                for index in -7...7 {
+                    var ray = Path()
+                    ray.move(to: CGPoint(x: w * 0.5, y: horizonY))
+                    ray.addLine(to: CGPoint(x: w * 0.5 + CGFloat(index) * w * 0.17, y: h))
+                    context.stroke(ray, with: .color(Vice.cyan.opacity(0.12)), lineWidth: 0.8)
+                }
+
+                // Palmen vorne, wie im Sonnenuntergang.
+                drawPalm(&context, base: CGPoint(x: w * 0.10, y: h * 1.02), height: h * 0.50, lean: w * 0.045, color: silhouette.opacity(0.95))
+                drawPalm(&context, base: CGPoint(x: w * 1.06, y: h * 1.03), height: h * 0.58, lean: -w * 0.06, color: silhouette.opacity(0.97))
+
+                // Abdunklung oben für die Statusleiste.
+                context.fill(Path(CGRect(x: 0, y: 0, width: w, height: h * 0.16)),
+                             with: .linearGradient(
+                                Gradient(colors: [Color.black.opacity(0.22), .clear]),
+                                startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h * 0.16)))
+            }
+            // Atmender Neon-Glow über der ganzen Kulisse.
+            if !reduceMotion {
+                ZStack {
+                    RadialGradient(colors: [Vice.cyan.opacity(0.30), .clear], center: .init(x: 0.22, y: 0.66), startRadius: 10, endRadius: 260)
+                    RadialGradient(colors: [Vice.magenta.opacity(0.30), .clear], center: .init(x: 0.80, y: 0.58), startRadius: 10, endRadius: 300)
+                }
+                .opacity(neonPulse ? 0.85 : 0.35)
+                .blendMode(.plusLighter)
+                .allowsHitTesting(false)
+            }
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 6.5).repeatForever(autoreverses: true)) {
+                neonPulse = true
+            }
+        }
+    }
+
     /// Eine Palme als Silhouette: gebogener Stamm + 7 gefächerte Wedel + Kokosnüsse.
     private func drawPalm(_ context: inout GraphicsContext, base: CGPoint, height: CGFloat, lean: CGFloat, color: Color) {
         let crown = CGPoint(x: base.x + lean, y: base.y - height)
@@ -231,17 +384,46 @@ struct VicePage<Content: View>: View {
     }
 }
 
-/// Eine Liquid-Glass-Karte im freigegebenen Rezept.
+/// Eine Liquid-Glass-Karte im freigegebenen Rezept — seit v2.0.0 mit
+/// sanft pulsierendem Akzent-Glow hinter dem Glas (abschaltbar in den
+/// Einstellungen, respektiert „Bewegung reduzieren“).
 struct GlassCard<Content: View>: View {
-    var cornerRadius: CGFloat = 26
+    var cornerRadius: CGFloat
+    var glow: Bool
     @ViewBuilder var content: Content
+
+    @AppStorage("cardGlowEnabled") private var glowEnabled = true
+    @AppStorage("accentColor") private var accentColor = "coral"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulsing = false
+
+    init(cornerRadius: CGFloat = 26, glow: Bool = true, @ViewBuilder content: () -> Content) {
+        self.cornerRadius = cornerRadius
+        self.glow = glow
+        self.content = content()
+    }
+
+    private var showsGlow: Bool { glow && glowEnabled }
+
+    /// Der Glow sitzt im Glas selbst (getönter Glaseffekt + weicher
+    /// Akzent-Schatten). So braucht die Karte keine zusätzliche Ebene
+    /// hinter dem Glas — das bleibt schnell und rendert sauber.
+    private var glassTint: Color {
+        showsGlow
+            ? AccentStyle.color(accentColor).opacity(pulsing ? 0.16 : 0.07)
+            : Color.white.opacity(0.08)
+    }
+
+    private var glowShadow: Color {
+        showsGlow ? AccentStyle.color(accentColor).opacity(pulsing ? 0.32 : 0.14) : .clear
+    }
 
     var body: some View {
         content
             .background {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .fill(.clear)
-                    .glassEffect(.regular.tint(.white.opacity(0.08)), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                    .glassEffect(.regular.tint(glassTint), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                     .overlay {
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .strokeBorder(
@@ -252,7 +434,15 @@ struct GlassCard<Content: View>: View {
                                 lineWidth: 1
                             )
                     }
+                    .shadow(color: glowShadow, radius: showsGlow ? 14 : 0)
             }
+            .onAppear {
+                guard showsGlow, !reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 5.5).repeatForever(autoreverses: true)) {
+                    pulsing = true
+                }
+            }
+            .onDisappear { pulsing = false }
     }
 }
 

@@ -122,7 +122,48 @@ struct ChecklistProgressIntent: AppIntent {
     }
 }
 
-/// Die vier Hub-Aktionen als App-Kurzbefehle für Siri, Spotlight
+/// „Wie schütze ich mich vor Spoilern?" — der Spoiler-Schutz-Hub als
+/// Siri-Ansage (v2.0.0): Status des Leak-Filters, Umfang der Mute-Liste
+/// und die erste Spoiler-Welle mit Datum und Uhrzeit.
+struct SpoilerProtectionIntent: AppIntent {
+    static var title: LocalizedStringResource = "Spoiler-Schutz"
+    static var description = IntentDescription("Sagt dir, wie du dich vor GTA-6-Spoilern abschirmst und wann die erste Spoiler-Welle startet.")
+    static var openAppWhenRun: Bool = false
+
+    /// Erste echte Spoiler-Welle: Neuseeland, 18.11.2026 um 12:00 Uhr Berlin.
+    private var firstWave: Date {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "Europe/Berlin") ?? .current
+        return cal.date(from: DateComponents(year: 2026, month: 11, day: 18, hour: 12, minute: 0)) ?? GTA6.releaseDate
+    }
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        let filterOn = UserDefaults.standard.object(forKey: "spoilerFilterEnabled") as? Bool ?? true
+        let count = SpoilerKeywords.all.count
+        let now = Date()
+        let filterLine = filterOn
+            ? Lang.tr("Der Leak-Filter im Hub ist an.", "The leak filter in the Hub is on.")
+            : Lang.tr("Der Leak-Filter im Hub ist aus — schalte ihn im Spoiler-Schutz-Hub ein.", "The leak filter in the Hub is off — switch it on in the Spoiler Shield hub.")
+        let text: String
+        if now >= GTA6.releaseDate {
+            text = Lang.tr(
+                "GTA 6 ist draußen. Für alles, was du noch nicht gesehen hast: \(count) Stichworte liegen im Spoiler-Schutz-Hub zum Kopieren bereit. \(filterLine)",
+                "GTA 6 is out. For everything you haven't seen yet: \(count) keywords are ready to copy in the Spoiler Shield hub. \(filterLine)")
+        } else if now >= firstWave {
+            text = Lang.tr(
+                "Achtung, die Spoiler-Welle läuft: In Neuseeland und Australien wird schon gespielt. Bleib bis Mitternacht offline, halte Push-Mitteilungen und Gruppenchats stumm und kopiere dir die \(count) Stichworte aus dem Spoiler-Schutz-Hub. \(filterLine)",
+                "Careful, the spoiler wave is running: New Zealand and Australia are already playing. Stay offline until midnight, keep push notifications and group chats muted, and copy the \(count) keywords from the Spoiler Shield hub. \(filterLine)")
+        } else {
+            let r = HubSpeech.remaining(to: firstWave)
+            text = Lang.tr(
+                "Bis zur ersten Spoiler-Welle am 18. November um 12 Uhr sind es noch \(HubSpeech.duration(days: r.days, hours: r.hours)). Kopiere dir im Spoiler-Schutz-Hub die \(count) Stichworte für X, TikTok, YouTube, Reddit und Instagram, schalte Push-Mitteilungen und Gruppenchats stumm. \(filterLine)",
+                "The first spoiler wave hits on November 18 at noon — \(HubSpeech.duration(days: r.days, hours: r.hours)) to go. Copy the \(count) keywords for X, TikTok, YouTube, Reddit and Instagram from the Spoiler Shield hub, and mute push notifications and group chats. \(filterLine)")
+        }
+        return .result(dialog: "\(text)")
+    }
+}
+
+/// Die fünf Hub-Aktionen als App-Kurzbefehle für Siri, Spotlight
 /// und die Kurzbefehle-App — mit deutschen und englischen Phrasen.
 struct GTA6HubShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
@@ -167,6 +208,18 @@ struct GTA6HubShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Launch-Checkliste",
             systemImageName: "checklist"
+        )
+        AppShortcut(
+            intent: SpoilerProtectionIntent(),
+            phrases: [
+                "Wie schütze ich mich vor Spoilern in \(.applicationName)",
+                "Spoiler-Schutz in \(.applicationName)",
+                "Wann kommen die GTA 6 Spoiler in \(.applicationName)",
+                "How do I avoid GTA 6 spoilers in \(.applicationName)",
+                "Spoiler protection in \(.applicationName)",
+            ],
+            shortTitle: "Spoiler-Schutz",
+            systemImageName: "eye.slash.fill"
         )
     }
 }

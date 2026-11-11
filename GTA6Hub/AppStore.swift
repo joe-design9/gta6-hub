@@ -15,6 +15,8 @@ final class AppStore: ObservableObject {
     @Published var userName: String = UserDefaults.standard.string(forKey: "userName") ?? ""
     @Published var assistantName: String = UserDefaults.standard.string(forKey: "assistantName") ?? ""
     @Published var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "hasOnboarded")
+    /// Gemerkte Artikel (v2.0.0) — im Gerät gespeichert, nicht nur im Speicher.
+    @Published var bookmarks: [SavedArticle] = []
     #if QA
     /// QA-Screenshots der Tipps-Ansicht (-QATips / -QATipsScrolled) —
     /// nur im QA-Build vorhanden, Release kennt den Schalter nicht.
@@ -39,6 +41,9 @@ final class AppStore: ObservableObject {
     /// QA-Aufnahme der Design-Karte (-QASettingsDesign): Die Einstellungen
     /// scrollen damit direkt zu den neuen Design-Optionen.
     @Published var qaShowSettingsDesign = false
+    /// QA-Screenshot des Spoiler-Schutz-Hubs (v2.0.0, -QASpoiler /
+    /// -QASpoilerWave).
+    @Published var qaShowSpoiler = false
     #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
@@ -81,6 +86,7 @@ final class AppStore: ObservableObject {
 
     init() {
         nvidiaKey = Keychain.loadNVIDIAKey() ?? ""
+        bookmarks = Self.loadBookmarks()
         #if QA
         // Tab-Vorwahl wirkt auch ohne Seed (z. B. für Leerzustände).
         let args = ProcessInfo.processInfo.arguments
@@ -108,6 +114,11 @@ final class AppStore: ObservableObject {
             UserDefaults.standard.set(5.0, forKey: "preloadCalcSpeed")
         }
         qaShowSettingsDesign = args.contains("-QASettingsDesign")
+        qaShowSpoiler = args.contains("-QASpoiler") || args.contains("-QASpoilerWave")
+        // Neon-Kulisse für die QA-Aufnahmen (v2.0.0).
+        if args.contains("-QANeon") {
+            UserDefaults.standard.set("neon", forKey: "backdropStyle")
+        }
         seedUITestDataIfRequested()
         #endif
     }
@@ -181,6 +192,40 @@ final class AppStore: ObservableObject {
                 messages[index].text = answer
             }
         }
+    }
+
+    // MARK: - Lesezeichen (v2.0.0)
+
+    private static let bookmarksKey = "bookmarks.v1"
+
+    private static func loadBookmarks() -> [SavedArticle] {
+        guard let data = UserDefaults.standard.data(forKey: bookmarksKey),
+              let saved = try? JSONDecoder().decode([SavedArticle].self, from: data) else { return [] }
+        return saved
+    }
+
+    private func saveBookmarks() {
+        guard let data = try? JSONEncoder().encode(bookmarks) else { return }
+        UserDefaults.standard.set(data, forKey: Self.bookmarksKey)
+    }
+
+    func isBookmarked(_ item: NewsItem) -> Bool {
+        bookmarks.contains { $0.link == item.link.absoluteString }
+    }
+
+    /// Merken oder wieder entfernen — das Lesezeichen-✒️ in der Lese-Ansicht.
+    func toggleBookmark(_ item: NewsItem) {
+        if let index = bookmarks.firstIndex(where: { $0.link == item.link.absoluteString }) {
+            bookmarks.remove(at: index)
+        } else {
+            bookmarks.insert(SavedArticle(item), at: 0)
+        }
+        saveBookmarks()
+    }
+
+    func removeBookmark(link: String) {
+        bookmarks.removeAll { $0.link == link }
+        saveBookmarks()
     }
 
     // MARK: - News

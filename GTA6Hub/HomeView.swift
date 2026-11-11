@@ -18,6 +18,7 @@ struct HomeView: View {
                         topStory(top)
                     }
                     factCard
+                    spoilerCard
                     quickActions
                     exploreRow
                     tipsCard
@@ -166,6 +167,52 @@ struct HomeView: View {
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Spoiler-Schutz (v2.0.0)
+
+    private var spoilerCard: some View {
+        NavigationLink {
+            SpoilerShieldView()
+        } label: {
+            GlassCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 14) {
+                        Image(systemName: "eye.slash.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background {
+                                Circle()
+                                    .fill(Vice.sunset)
+                            }
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(store.tr("SPOILER-SCHUTZ", "SPOILER SHIELD"))
+                                .font(.caption2.weight(.bold)).tracking(1.5)
+                                .foregroundStyle(.white.opacity(0.55))
+                            Text(store.tr("Bleib spoilerfrei bis Mitternacht", "Stay spoiler-free until midnight"))
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Vice.coral)
+                    }
+                    Text(store.tr(
+                        "\(SpoilerKeywords.all.count) Stichworte mit einem Tipp kopieren, der Spoiler-Wellen-Zeitplan und die Launch-Tag-Checkliste — dein Schutzschild gegen Leaks auf X, TikTok, YouTube & Co.",
+                        "Copy \(SpoilerKeywords.all.count) keywords in one tap, plus the spoiler wave schedule and the launch-day checklist — your shield against leaks on X, TikTok, YouTube & co."
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.68))
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .buttonStyle(.plain)

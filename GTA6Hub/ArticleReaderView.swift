@@ -1,17 +1,22 @@
 import SwiftUI
 import WebKit
 
-/// Lese-Ansicht für eine News (v1.5.0): Der Artikel wird aufbereitet
+/// Lese-Ansicht für eine News (v1.5.0, v2.0.0): Der Artikel wird aufbereitet
 /// direkt in der App gezeigt — antippen, lesen, fertig, ohne die App
-/// zu verlassen. Klappt die Aufbereitung nicht (Paywall, zu wenig
-/// Text), springt die Web-Ansicht desselben Artikels ein.
+/// zu verlassen. Neu in v2.0.0: Lesezeichen, einstellbare Textgröße und
+/// eine Spoiler-Warnung vor sensiblen Artikeln.
 struct ArticleReaderView: View {
     let item: NewsItem
 
     @EnvironmentObject private var store: AppStore
     @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
     @State private var content: ArticleService.Content?
     @State private var showWeb: Bool
+
+    @AppStorage("spoilerFilterEnabled") private var spoilerFilterEnabled = true
+    @AppStorage("readerTextScale") private var textScale: Double = 1.0
+    @State private var revealed = false
 
     /// Start-Ansicht aus den Einstellungen (v1.6.0): „Web-Ansicht" als
     /// Standard öffnet Artikel direkt als Webseite, sonst Lese-Ansicht.
@@ -22,9 +27,15 @@ struct ArticleReaderView: View {
     @State private var appeared = false
     @State private var progress: Double = 0
 
+    private var needsSpoilerWarning: Bool {
+        spoilerFilterEnabled && SpoilerGuard.isSensitive(title: item.title) && !revealed
+    }
+
     var body: some View {
         Group {
-            if showWeb {
+            if needsSpoilerWarning {
+                spoilerGate
+            } else if showWeb {
                 ArticleWebView(url: item.link)
             } else if let content {
                 articleBody(content)
@@ -36,6 +47,15 @@ struct ArticleReaderView: View {
         .navigationTitle(item.source)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    store.toggleBookmark(item)
+                    Haptics.tap()
+                } label: {
+                    Image(systemName: store.isBookmarked(item) ? "bookmark.fill" : "bookmark")
+                }
+                .accessibilityLabel(store.tr("Lesezeichen", "Bookmark"))
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 ShareLink(item: item.link) {
                     Image(systemName: "square.and.arrow.up")
@@ -53,6 +73,19 @@ struct ArticleReaderView: View {
                             store.tr(showWeb ? "Lese-Ansicht" : "Web-Ansicht", showWeb ? "Reading view" : "Web view"),
                             systemImage: showWeb ? "text.alignleft" : "globe"
                         )
+                    }
+                    Menu {
+                        Button(store.tr("Kleiner", "Smaller")) {
+                            textScale = max(0.85, textScale - 0.1)
+                        }
+                        Button(store.tr("Standard", "Default")) {
+                            textScale = 1.0
+                        }
+                        Button(store.tr("Größer", "Larger")) {
+                            textScale = min(1.4, textScale + 0.1)
+                        }
+                    } label: {
+                        Label(store.tr("Textgröße", "Text size"), systemImage: "textformat.size")
                     }
                     Button {
                         openURL(item.link)
@@ -75,6 +108,88 @@ struct ArticleReaderView: View {
             // Aufbereitung nicht möglich: Web-Ansicht zeigt den Artikel.
             showWeb = true
         }
+    }
+
+    // MARK: - Spoiler-Warnung (v2.0.0)
+
+    private var spoilerGate: some View {
+        ScrollView {
+            VStack(spacing: 18) {
+                GlassCard {
+                    VStack(spacing: 14) {
+                        Image(systemName: "eye.slash.fill")
+                            .font(.system(size: 42))
+                            .foregroundStyle(Vice.orange)
+                            .frame(width: 86, height: 86)
+                            .background {
+                                Circle().fill(Color.white.opacity(0.08))
+                            }
+                        Text(store.tr("SPOILER-GEFAHR", "SPOILER RISK"))
+                            .font(.caption2.weight(.bold)).tracking(2)
+                            .foregroundStyle(Vice.orange)
+                        Text(item.title)
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .blur(radius: 6)
+                        Text(store.tr(
+                            "Diese Schlagzeile enthält ein Stichwort, das auf Story-Spoiler hindeutet. Der Leak-Filter hat sie deshalb verdeckt.",
+                            "This headline contains a keyword that hints at story spoilers. That's why the leak filter covered it."
+                        ))
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.72))
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        if let trigger = SpoilerGuard.matchedTrigger(in: item.title) {
+                            Text(store.tr("Auslöser: „\(trigger)“", "Trigger: “\(trigger)”"))
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.white.opacity(0.5))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(22)
+                }
+
+                VStack(spacing: 10) {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) { revealed = true }
+                        Haptics.tap()
+                    } label: {
+                        Text(store.tr("Trotzdem lesen", "Read anyway"))
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Capsule().fill(Color.white))
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text(store.tr("Lieber zurück", "Better go back"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white.opacity(0.8))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .glassPill()
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text(store.tr(
+                    "Der Filter lässt sich jederzeit im Spoiler-Schutz-Hub abschalten.",
+                    "You can switch the filter off any time in the Spoiler Shield hub."
+                ))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.45))
+                .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, 18)
+            .padding(.top, 24)
+            .padding(.bottom, 24)
+        }
+        .scrollContentBackground(.hidden)
     }
 
     // MARK: - Aufbereiteter Artikel
@@ -100,8 +215,17 @@ struct ArticleReaderView: View {
                     }
                     metaRow(content)
                     Text(content.title)
-                        .font(.title2.weight(.bold))
+                        .font(.system(size: 22 * CGFloat(textScale), weight: .bold))
                         .foregroundStyle(.white)
+                    if store.isBookmarked(item) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "bookmark.fill")
+                                .font(.caption2)
+                            Text(store.tr("Gemerkt", "Saved"))
+                                .font(.caption2.weight(.semibold))
+                        }
+                        .foregroundStyle(Vice.orange)
+                    }
                     ForEach(Array(content.blocks.enumerated()), id: \.offset) { index, block in
                         blockView(block)
                             .opacity(appeared ? 1 : 0)
@@ -162,13 +286,13 @@ struct ArticleReaderView: View {
         switch block {
         case .heading(let text):
             Text(text)
-                .font(.headline)
+                .font(.system(size: 17 * CGFloat(textScale), weight: .semibold))
                 .foregroundStyle(.white)
                 .padding(.top, 8)
         case .paragraph(let text):
             Text(text)
-                .font(.body)
-                .lineSpacing(5)
+                .font(.system(size: 17 * CGFloat(textScale)))
+                .lineSpacing(5 * CGFloat(textScale))
                 .foregroundStyle(.white.opacity(0.92))
         }
     }
@@ -179,15 +303,35 @@ struct ArticleReaderView: View {
                           "Source: \(content.source) — cleaned-up reading view of the original article."))
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.45))
-            Button {
-                openURL(content.url)
-            } label: {
-                Text(store.tr("Original öffnen", "Open original"))
+            HStack(spacing: 10) {
+                Button {
+                    store.toggleBookmark(item)
+                    Haptics.tap()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: store.isBookmarked(item) ? "bookmark.fill" : "bookmark")
+                        Text(store.isBookmarked(item)
+                             ? store.tr("Gemerkt", "Saved")
+                             : store.tr("Merken", "Save"))
+                    }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 10)
-                    .background(Capsule().fill(Color.white))
+                    .glassPill()
+                }
+                .buttonStyle(.plain)
+                Button {
+                    openURL(content.url)
+                } label: {
+                    Text(store.tr("Original öffnen", "Open original"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 10)
+                        .background(Capsule().fill(Color.white))
+                }
+                .buttonStyle(.plain)
             }
         }
     }

@@ -15,6 +15,20 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.0.0", dateDE: "11. November 2026", dateEN: "November 11, 2026", highlights: [
+            (de: "Der Spoiler-Schutz-Hub: ein eigener Bereich mit Stichwort-Stummschalter für X, TikTok, YouTube, Reddit und Instagram — über 40 Begriffe, für jede Plattform richtig formatiert, mit einem Tipp kopiert und mit dem genauen Einstellungs-Pfad daneben.",
+             en: "The Spoiler Shield hub: a dedicated area with a keyword muter for X, TikTok, YouTube, Reddit and Instagram — 40+ terms, formatted for each platform, copied in one tap and with the exact settings path right next to it."),
+            (de: "Der Spoiler-Wellen-Zeitplan: wann Discs zu den Händlern gehen, wann Neuseeland um 12:00 Uhr und Australien um 14:00 Uhr deutscher Zeit losspielen — mit Live-Countdown bis zur ersten Welle. Dazu die interaktive Launch-Tag-Checkliste (Push aus, Gruppenchats pausiert, Fokus „Gaming“) und vier Notfall-Regeln.",
+             en: "The spoiler wave schedule: when discs reach retailers, when New Zealand starts at noon and Australia at 2 pm German time — with a live countdown to the first wave. Plus the interactive launch-day checklist (push off, group chats paused, “Gaming” focus) and four emergency rules."),
+            (de: "Leak-Filter im News-Feed: Schlagzeilen mit „Spoiler“, „Leak“, „Ende“ & Co. sind verdeckt, in der Lese-Ansicht kommt vorher eine Spoiler-Warnung. Der Filter lässt sich im Hub, in den Einstellungen und direkt im Feed umschalten.",
+             en: "Leak filter in the news feed: headlines with “spoiler”, “leak”, “ending” & co. are covered, and the reading view shows a spoiler warning first. The filter can be switched in the hub, in Settings and right in the feed."),
+            (de: "Lesen wie im eigenen Buch: Lesezeichen für Artikel (bleiben gespeichert und haben eine eigene Liste im News-Tab) und drei Textgrößen in der Lese-Ansicht.",
+             en: "Reading like your own book: bookmarks for articles (persisted, with their own list in the News tab) and three text sizes in the reading view."),
+            (de: "Neuer Hintergrund „Neon“: Electric Vice City bei Nacht — magenta Sonne mit Retrostreifen, cyanfarbener Horizont, Skyline mit beleuchteten Fenstern, Perspektiv-Grid und Palmen. Dazu ein sanft pulsierender Glow hinter jeder Glas-Karte (abschaltbar).",
+             en: "New “Neon” background: Electric Vice City at night — a magenta retro-striped sun, a cyan horizon, a skyline with lit windows, a perspective grid and palms. Plus a gently pulsing glow behind every glass card (can be switched off)."),
+            (de: "Tiefere KI: dein Assistent kennt jetzt Lucia, Jason, Boobie Ike, Cal Hampton, Brian Heder, Raul Bautista, Mendéz und San4San, die Orte von Port Gellhorn bis Mount Kalaga, die bestätigten Launch-Fakten und den Spoiler-Schutz. Neu bei Siri: „Wie schütze ich mich vor Spoilern?“",
+             en: "Deeper AI: your assistant now knows Lucia, Jason, Boobie Ike, Cal Hampton, Brian Heder, Raul Bautista, Mendéz and San4San, the places from Port Gellhorn to Mount Kalaga, the confirmed launch facts and spoiler protection. New in Siri: “How do I avoid GTA 6 spoilers?”"),
+        ]),
         Entry(version: "1.7.0", dateDE: "November 2026", dateEN: "November 2026", highlights: [
             (de: "Neu: der Preload-Rechner — Leitung einstellen (5 bis 1.000 Mbit/s, Schieberegler oder eigener Wert) und sofort sehen, wie lange die 209,8 GB brauchen und um wie viel Uhr der Download fertig wäre. Auf Wunsch realistisch mit ca. 90 % der Leitung gerechnet.",
              en: "New: the preload calculator — set your line speed (5 to 1,000 Mbps, slider or custom value) and instantly see how long the 209.8 GB take and what time the download would finish. Optionally calculated realistically at about 90% of your line."),
