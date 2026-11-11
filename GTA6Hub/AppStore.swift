@@ -115,8 +115,6 @@ final class AppStore: ObservableObject {
         }
         qaShowSettingsDesign = args.contains("-QASettingsDesign")
         qaShowSpoiler = args.contains("-QASpoiler") || args.contains("-QASpoilerWave")
-        // TEMP-QA: -QATips zeigt vorübergehend den Spoiler-Hub (nur Aufnahme).
-        if args.contains("-QATips") || args.contains("-QATipsScrolled") { qaShowTips = false; qaShowSpoiler = true }
         // Neon-Kulisse für die QA-Aufnahmen (v2.0.0).
         if args.contains("-QANeon") {
             UserDefaults.standard.set("neon", forKey: "backdropStyle")

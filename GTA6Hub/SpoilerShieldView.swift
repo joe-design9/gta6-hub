@@ -178,8 +178,7 @@ struct SpoilerShieldView: View {
                 #if QA
                 // QA-Aufnahme des Wellen-Zeitplans (-QASpoilerWave):
                 // direkt dorthin scrollen, damit er im Bild liegt.
-                let args = ProcessInfo.processInfo.arguments
-                if args.contains("-QASpoilerWave") || args.contains("-QATipsScrolled") {
+                if ProcessInfo.processInfo.arguments.contains("-QASpoilerWave") {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                         withAnimation { proxy.scrollTo("spoiler-waves", anchor: .top) }
                     }
