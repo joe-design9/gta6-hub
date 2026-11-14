@@ -12,7 +12,11 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                // LazyVStack (Performance-Fix): Die Glas-Karten unterhalb
+                // der Falz werden erst gebaut, wenn sie in Sicht kommen —
+                // vorher lagen alle Karten samt Glas und Schatten ab dem
+                // Start gleichzeitig im Render-Baum.
+                LazyVStack(spacing: 16) {
                     miniCountdown
                     if let top = store.news.first {
                         topStory(top)

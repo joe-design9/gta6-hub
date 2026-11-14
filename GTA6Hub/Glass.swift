@@ -22,7 +22,42 @@ enum Vice {
 /// Trailer-1-Ankündigung. Die Glasflächen liegen darüber und brechen
 /// die Farben. Als Canvas gezeichnet, damit es auf jedem Screen gleich
 /// satt aussieht (der alte Verlauf war auf echten Geräten fast schwarz).
+/// Einstiegspunkt für die Kulisse: liest nur den gewählten Stil und
+/// übergibt ihn an die Equatable-Szene darunter. So zeichnet SwiftUI
+/// den Vollbild-Canvas nur dann neu, wenn sich der Stil wirklich
+/// ändert — nicht mehr bei jedem Store-Update oder Tabwechsel, die
+/// früher alle Ebenen der Kulisse komplett neu rendern ließen
+/// (Performance-Fix).
 struct AppBackdrop: View {
+    @AppStorage("backdropStyle") private var backdropStyle = "sunset"
+
+    var body: some View {
+        BackdropScene(style: backdropStyle)
+            .equatable()
+    }
+}
+
+/// Die eigentliche Vice-City-Kulisse (Verlauf + Canvas). Als
+/// Equatable-Szene mit dem Stil als einzigem Input: gleicher Stil
+/// bedeutet, SwiftUI überspringt Body und Canvas komplett.
+private struct BackdropScene: View, Equatable {
+    let style: String
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        switch style {
+        case "midnight":
+            Color.black.ignoresSafeArea()
+        case "night":
+            nightBody
+        case "neon":
+            neonBody
+        default:
+            sunsetBody
+        }
+    }
+
     /// Himmel: Violett → Magenta → Koralle → Gold → Dämmerung.
     static var skyGradient: LinearGradient {
         LinearGradient(stops: [
@@ -34,23 +69,6 @@ struct AppBackdrop: View {
             .init(color: Color(red: 0.44, green: 0.16, blue: 0.38), location: 0.88),
             .init(color: Color(red: 0.09, green: 0.03, blue: 0.15), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
-    }
-
-    @AppStorage("backdropStyle") private var backdropStyle = "sunset"
-
-    init() {}
-
-    var body: some View {
-        switch backdropStyle {
-        case "midnight":
-            Color.black.ignoresSafeArea()
-        case "night":
-            nightBody
-        case "neon":
-            neonBody
-        default:
-            sunsetBody
-        }
     }
 
     private var sunsetBody: some View {
@@ -172,8 +190,6 @@ struct AppBackdrop: View {
             .init(color: Color(red: 0.01, green: 0.00, blue: 0.04), location: 1.0),
         ], startPoint: .top, endPoint: .bottom)
     }
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var neonBody: some View {
         ZStack {
@@ -369,14 +385,17 @@ struct VicePage<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        ZStack {
-            AppBackdrop()
-            content
-        }
-        // ScrollViews/Listen malen sonst ihr eigenes (schwarzes)
-        // System-Hintergrund über die Kulisse — ausblenden, damit der
-        // Vice-City-Hintergrund durchscheint.
-        .scrollContentBackground(.hidden)
+        // Kein eigener AppBackdrop mehr an dieser Stelle
+        // (Performance-Fix): Jede Tab-Seite trägt ihre Kulisse selbst
+        // als .background an ihrer ScrollView bzw. Wurzel — die
+        // zusätzliche Vollbild-Kulisse hier lag komplett verdeckt
+        // darunter und verdoppelte nur die Compositing-Last (Verlauf
+        // + Canvas pro Tab ein zweites Mal).
+        content
+            // ScrollViews/Listen malen sonst ihr eigenes (schwarzes)
+            // System-Hintergrund über die Kulisse — ausblenden, damit
+            // der Vice-City-Hintergrund durchscheint.
+            .scrollContentBackground(.hidden)
     }
 }
 

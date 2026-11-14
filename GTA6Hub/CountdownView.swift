@@ -11,7 +11,10 @@ struct CountdownView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                // LazyVStack (Performance-Fix): Abschnitte unterhalb der
+                // Falz (Meilensteine, Welt-Release) werden erst bei Sicht
+                // gebaut statt alle Glas-Karten sofort zu rendern.
+                LazyVStack(spacing: 16) {
                     countdownCard
                     if EffectiveNow.value(Date()) < GTA6.releaseDate {
                         if EffectiveNow.value(Date()) >= GTA6.preloadDate {
