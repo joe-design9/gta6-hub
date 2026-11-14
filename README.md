@@ -25,7 +25,7 @@ KI-Chat — komplett in Liquid Glass, auf Wunsch in Electric-Vice-Neon.
 
 - Stichwort-Stummschalter mit über 40 Begriffen für X, TikTok, YouTube, Reddit
   und Instagram — pro Plattform richtig formatiert, in einem Tipp kopiert.
-- Spoiler-Wellen-Zeitplan: Preload, Disc-Auslieferung, Neuseeland 18.11. 12:00
+- Spoiler-Wellen-Zeitplan: Preload, Code-in-Box im Handel, Neuseeland 18.11. 12:00
   und Australien 14:00 Uhr deutscher Zeit, eigener Unlock um Mitternacht.
 - Launch-Tag-Checkliste (Push aus, Gruppenchats pausiert, Fokus „Gaming“,
   Verlauf pausiert, Kommentare aus …) mit gespeichertem Fortschritt.
@@ -38,6 +38,6 @@ KI-Chat — komplett in Liquid Glass, auf Wunsch in Electric-Vice-Neon.
   Perspektiv-Grid), dazu vier Akzentfarben und ein pulsierender Karten-Glow.
 - Siri & Kurzbefehle über App Intents: Countdown, News, Fakt des Tages,
   Checklisten-Fortschritt und Spoiler-Schutz.
-- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.1
+- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.2
 - Unsigned IPA über GitHub Actions (`.github/workflows/build-ipa.yml`),
   Installation per Sideloadly/AltStore.

@@ -15,6 +15,12 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.0.2", dateDE: "14. November 2026", dateEN: "November 14, 2026", highlights: [
+            (de: "Noch flüssiger überall: Der Hintergrund wird pro Seite nur noch einmal aufgebaut und nur neu gezeichnet, wenn er sich wirklich ändert, und die Hauptlisten bauen ihre Karten erst, wenn sie sichtbar werden — Scrollen und Rendern laufen in der ganzen App spürbar ruhiger.",
+             en: "Even smoother everywhere: the backdrop is now built only once per page and redrawn only when it actually changes, and the main lists build their cards only when they come into view — scrolling and rendering feel noticeably calmer throughout the app."),
+            (de: "Korrektur im Spoiler-Wellen-Zeitplan: Statt der Disc-Auslieferung steht dort jetzt der Code-in-Box-Verkauf — GTA 6 erscheint im Handel nur als Download-Code in der Box, eine Disc-Version gibt es nicht.",
+             en: "Correction in the spoiler wave schedule: the disc shipment entry is replaced by the code-in-box retail release — GTA 6 is sold at retail only as a download code in the box, there is no disc version."),
+        ]),
         Entry(version: "2.0.1", dateDE: "14. November 2026", dateEN: "November 14, 2026", highlights: [
             (de: "Flüssiger überall: Der Karten-Glow pulsiert nicht mehr, sondern steht fest — gleicher Look, aber die App muss nicht mehr ununterbrochen neu zeichnen. Das Ruckeln beim Scrollen und in den Tabs ist damit behoben.",
              en: "Smoother everywhere: the card glow no longer pulses, it stays fixed — same look, but the app no longer has to redraw non-stop. The stutter when scrolling and switching tabs is fixed."),
