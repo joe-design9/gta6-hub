@@ -45,6 +45,14 @@ private struct BackdropScene: View, Equatable {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    /// Explizites == statt Synthese: Die synthetisierte Gleichheit
+    /// müsste auch den @Environment-Wert einbeziehen und schlägt damit
+    /// fehl (kein gültiger Equatable-Witness). Für .equatable() zählt
+    /// allein der Stil — gleicher Stil, Body wird übersprungen.
+    static func == (lhs: BackdropScene, rhs: BackdropScene) -> Bool {
+        lhs.style == rhs.style
+    }
+
     var body: some View {
         switch style {
         case "midnight":
