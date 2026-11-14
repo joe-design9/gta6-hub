@@ -15,6 +15,12 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.0.1", dateDE: "14. November 2026", dateEN: "November 14, 2026", highlights: [
+            (de: "Flüssiger überall: Der Karten-Glow pulsiert nicht mehr, sondern steht fest — gleicher Look, aber die App muss nicht mehr ununterbrochen neu zeichnen. Das Ruckeln beim Scrollen und in den Tabs ist damit behoben.",
+             en: "Smoother everywhere: the card glow no longer pulses, it stays fixed — same look, but the app no longer has to redraw non-stop. The stutter when scrolling and switching tabs is fixed."),
+            (de: "Auch der Neon-Hintergrund atmet nicht mehr dauerhaft — sein Glow ist jetzt statisch und kostet keine Leistung mehr.",
+             en: "The neon backdrop no longer breathes permanently either — its glow is now static and costs no performance."),
+        ]),
         Entry(version: "2.0.0", dateDE: "11. November 2026", dateEN: "November 11, 2026", highlights: [
             (de: "Der Spoiler-Schutz-Hub: ein eigener Bereich mit Stichwort-Stummschalter für X, TikTok, YouTube, Reddit und Instagram — über 40 Begriffe, für jede Plattform richtig formatiert, mit einem Tipp kopiert und mit dem genauen Einstellungs-Pfad daneben.",
              en: "The Spoiler Shield hub: a dedicated area with a keyword muter for X, TikTok, YouTube, Reddit and Instagram — 40+ terms, formatted for each platform, copied in one tap and with the exact settings path right next to it."),

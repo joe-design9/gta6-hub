@@ -38,6 +38,6 @@ KI-Chat — komplett in Liquid Glass, auf Wunsch in Electric-Vice-Neon.
   Perspektiv-Grid), dazu vier Akzentfarben und ein pulsierender Karten-Glow.
 - Siri & Kurzbefehle über App Intents: Countdown, News, Fakt des Tages,
   Checklisten-Fortschritt und Spoiler-Schutz.
-- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.0
+- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.1
 - Unsigned IPA über GitHub Actions (`.github/workflows/build-ipa.yml`),
   Installation per Sideloadly/AltStore.

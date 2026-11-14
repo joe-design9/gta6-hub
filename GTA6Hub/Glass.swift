@@ -159,8 +159,8 @@ struct AppBackdrop: View {
 
     /// Neon-Variante (v2.0.0): Electric Vice City bei Nacht — magenta Sonne
     /// mit Retrostreifen, cyanfarbener Horizont, Skyline mit beleuchteten
-    /// Fenstern, Perspektiv-Grid und Palmen. Dazu ein langsam atmender
-    /// Glow, damit das Glas darüber lebt.
+    /// Fenstern, Perspektiv-Grid und Palmen. Dazu ein Glow über der
+    /// Kulisse (v2.0.1: statisch statt atmend, Performance).
     static var neonGradient: LinearGradient {
         LinearGradient(stops: [
             .init(color: Color(red: 0.02, green: 0.01, blue: 0.09), location: 0.0),
@@ -173,7 +173,6 @@ struct AppBackdrop: View {
         ], startPoint: .top, endPoint: .bottom)
     }
 
-    @State private var neonPulse = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var neonBody: some View {
@@ -283,24 +282,21 @@ struct AppBackdrop: View {
                                 Gradient(colors: [Color.black.opacity(0.22), .clear]),
                                 startPoint: CGPoint(x: 0, y: 0), endPoint: CGPoint(x: 0, y: h * 0.16)))
             }
-            // Atmender Neon-Glow über der ganzen Kulisse.
+            // Neon-Glow über der ganzen Kulisse — seit v2.0.1 statisch
+            // statt atmend: die Dauer-Animation (.repeatForever) hielt den
+            // Render-Loop auf voller Bildrate und ließ alle Glasflächen
+            // darüber ununterbrochen neu zeichnen (Ruckeln, Performance-Fix).
             if !reduceMotion {
                 ZStack {
                     RadialGradient(colors: [Vice.cyan.opacity(0.30), .clear], center: .init(x: 0.22, y: 0.66), startRadius: 10, endRadius: 260)
                     RadialGradient(colors: [Vice.magenta.opacity(0.30), .clear], center: .init(x: 0.80, y: 0.58), startRadius: 10, endRadius: 300)
                 }
-                .opacity(neonPulse ? 0.85 : 0.35)
+                .opacity(0.6)
                 .blendMode(.plusLighter)
                 .allowsHitTesting(false)
             }
         }
         .ignoresSafeArea()
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 6.5).repeatForever(autoreverses: true)) {
-                neonPulse = true
-            }
-        }
     }
 
     /// Eine Palme als Silhouette: gebogener Stamm + 7 gefächerte Wedel + Kokosnüsse.
@@ -385,8 +381,11 @@ struct VicePage<Content: View>: View {
 }
 
 /// Eine Liquid-Glass-Karte im freigegebenen Rezept — seit v2.0.0 mit
-/// sanft pulsierendem Akzent-Glow hinter dem Glas (abschaltbar in den
-/// Einstellungen, respektiert „Bewegung reduzieren“).
+/// Akzent-Glow im Glas (abschaltbar in den Einstellungen). Der Glow ist
+/// seit v2.0.1 statisch: die frühere Puls-Animation lief auf JEDER Karte
+/// endlos (.repeatForever) und zwang jeden Glaseffekt samt Schatten
+/// ununterbrochen zum Neuzeichnen — die Ursache für das Ruckeln in
+/// allen Tabs. Gleiche Farben, gleicher Look, nur ohne Dauer-Animation.
 struct GlassCard<Content: View>: View {
     var cornerRadius: CGFloat
     var glow: Bool
@@ -394,8 +393,6 @@ struct GlassCard<Content: View>: View {
 
     @AppStorage("cardGlowEnabled") private var glowEnabled = true
     @AppStorage("accentColor") private var accentColor = "coral"
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var pulsing = false
 
     init(cornerRadius: CGFloat = 26, glow: Bool = true, @ViewBuilder content: () -> Content) {
         self.cornerRadius = cornerRadius
@@ -410,12 +407,12 @@ struct GlassCard<Content: View>: View {
     /// hinter dem Glas — das bleibt schnell und rendert sauber.
     private var glassTint: Color {
         showsGlow
-            ? AccentStyle.color(accentColor).opacity(pulsing ? 0.16 : 0.07)
+            ? AccentStyle.color(accentColor).opacity(0.12)
             : Color.white.opacity(0.08)
     }
 
     private var glowShadow: Color {
-        showsGlow ? AccentStyle.color(accentColor).opacity(pulsing ? 0.32 : 0.14) : .clear
+        showsGlow ? AccentStyle.color(accentColor).opacity(0.23) : .clear
     }
 
     var body: some View {
@@ -436,13 +433,6 @@ struct GlassCard<Content: View>: View {
                     }
                     .shadow(color: glowShadow, radius: showsGlow ? 14 : 0)
             }
-            .onAppear {
-                guard showsGlow, !reduceMotion else { return }
-                withAnimation(.easeInOut(duration: 5.5).repeatForever(autoreverses: true)) {
-                    pulsing = true
-                }
-            }
-            .onDisappear { pulsing = false }
     }
 }
 
