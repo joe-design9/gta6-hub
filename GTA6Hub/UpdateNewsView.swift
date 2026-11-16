@@ -15,6 +15,10 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.0.3", dateDE: "16. November 2026", dateEN: "November 16, 2026", highlights: [
+            (de: "Neu: Die Neuseeland-Start-Karte auf dem Countdown-Tab — mit eigenem Countdown bis zum Start in Wellington (bei dir: Mittwoch, 18. November, 12:00 Uhr), 12 Stunden vor dem Deutschland-Start.",
+             en: "New: the New Zealand launch card on the Countdown tab — with its own countdown to the Wellington launch (for you: Wednesday, November 18, 12:00 noon), 12 hours before the German launch."),
+        ]),
         Entry(version: "2.0.2", dateDE: "14. November 2026", dateEN: "November 14, 2026", highlights: [
             (de: "Noch flüssiger überall: Der Hintergrund wird pro Seite nur noch einmal aufgebaut und nur neu gezeichnet, wenn er sich wirklich ändert, und die Hauptlisten bauen ihre Karten erst, wenn sie sichtbar werden — Scrollen und Rendern laufen in der ganzen App spürbar ruhiger.",
              en: "Even smoother everywhere: the backdrop is now built only once per page and redrawn only when it actually changes, and the main lists build their cards only when they come into view — scrolling and rendering feel noticeably calmer throughout the app."),

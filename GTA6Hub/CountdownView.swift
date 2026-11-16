@@ -16,6 +16,7 @@ struct CountdownView: View {
                 // gebaut statt alle Glas-Karten sofort zu rendern.
                 LazyVStack(spacing: 16) {
                     countdownCard
+                    if EffectiveNow.value(Date()) < GTA6.releaseDate { nzStartCard }
                     if EffectiveNow.value(Date()) < GTA6.releaseDate {
                         if EffectiveNow.value(Date()) >= GTA6.preloadDate {
                             preloadDoneCard
@@ -87,6 +88,68 @@ struct CountdownView: View {
                             Text(store.tr("bis zum Launch um Mitternacht 🎮", "until the midnight launch 🎮"))
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.75))
+                        }
+                    }
+                }
+            }
+            .padding(20)
+        }
+    }
+
+    // MARK: - Neuseeland-Start (18.11.2026, 12:00 Uhr Berlin)
+
+    private var nzStartCard: some View {
+        GlassCard {
+            VStack(spacing: 14) {
+                HStack {
+                    Text(store.tr("NEUSEELAND-START", "NEW ZEALAND LAUNCH"))
+                        .font(.caption.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(Vice.sunset)
+                    Spacer()
+                    Text("18.11.2026")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
+                    let now = EffectiveNow.value(context.date)
+                    let nzUnlock = unlockDate(for: "Pacific/Auckland")
+                    VStack(spacing: 14) {
+                        if now < nzUnlock {
+                            let parts = parts(to: nzUnlock, now: now)
+                            HStack(spacing: 10) {
+                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
+                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
+                                timeTile(value: parts.minutes, label: "MIN")
+                                if showSeconds {
+                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
+                                }
+                            }
+                            VStack(spacing: 3) {
+                                Text(store.tr(
+                                    "Start in Wellington: \(timeString(nzUnlock, tzID: "Pacific/Auckland", style: "EEEE, d. MMMM · HH:mm")) Uhr",
+                                    "Launch in Wellington: \(timeString(nzUnlock, tzID: "Pacific/Auckland", style: "EEEE, d. MMMM · HH:mm"))"
+                                ))
+                                Text(store.tr(
+                                    "Bei dir in Berlin: \(timeString(nzUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm")) Uhr",
+                                    "For you in Berlin: \(timeString(nzUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm"))"
+                                ))
+                            }
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                            Text(store.tr("🔥 12 Stunden früher als dein Deutschland-Start!", "🔥 12 hours earlier than your German launch!"))
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Vice.orange)
+                        } else {
+                            Text(store.tr("NEUSEELAND SPIELT SCHON 🎉", "NEW ZEALAND IS ALREADY PLAYING 🎉"))
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Vice.sunset)
+                                .multilineTextAlignment(.center)
+                            Text(store.tr("Seit 12:00 Uhr wird in Leonida gespielt — dein Start ist heute Nacht um 00:00 Uhr. 🌴", "Leonida has been live since noon — your launch is tonight at midnight. 🌴"))
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.75))
+                                .multilineTextAlignment(.center)
                         }
                     }
                 }
