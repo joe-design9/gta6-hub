@@ -13,7 +13,7 @@ KI-Chat — komplett in Liquid Glass, auf Wunsch in Electric-Vice-Neon.
   „× schlafen“, Meilensteine (Preload 10.11.2026) und Launch-Status.
 - **Neuseeland-Start-Karte** — eigener Countdown bis zum Start in Wellington
   (bei dir: Mittwoch, 18.11.2026, 12:00 Uhr Berlin), 12 Stunden vor dem
-  Deutschland-Start.
+  Deutschland-Start, inklusive Gesamtzahlen (Stunden, Minuten, Sekunden).
 - **KI-Chat** — Chat mit Mochi. Engine nach Verfügbarkeit:
   1. eigener NVIDIA-API-Key (Einstellungen) → NVIDIA Nemotron (Cloud),
   2. sonst Apple Intelligence direkt auf dem Gerät,
@@ -41,6 +41,6 @@ KI-Chat — komplett in Liquid Glass, auf Wunsch in Electric-Vice-Neon.
   Perspektiv-Grid), dazu vier Akzentfarben und ein pulsierender Karten-Glow.
 - Siri & Kurzbefehle über App Intents: Countdown, News, Fakt des Tages,
   Checklisten-Fortschritt und Spoiler-Schutz.
-- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.3
+- Bundle-ID: `dev.joe.gta6hub` · Version 2.0.4
 - Unsigned IPA über GitHub Actions (`.github/workflows/build-ipa.yml`),
   Installation per Sideloadly/AltStore.

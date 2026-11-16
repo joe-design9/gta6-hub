@@ -15,6 +15,10 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.0.4", dateDE: "16. November 2026", dateEN: "November 16, 2026", highlights: [
+            (de: "Die Neuseeland-Karte zeigt jetzt auch die Gesamtzahlen bis zum Start: Stunden, Minuten und Sekunden.",
+             en: "The New Zealand card now also shows the totals until launch: hours, minutes and seconds."),
+        ]),
         Entry(version: "2.0.3", dateDE: "16. November 2026", dateEN: "November 16, 2026", highlights: [
             (de: "Neu: Die Neuseeland-Start-Karte auf dem Countdown-Tab — mit eigenem Countdown bis zum Start in Wellington (bei dir: Mittwoch, 18. November, 12:00 Uhr), 12 Stunden vor dem Deutschland-Start.",
              en: "New: the New Zealand launch card on the Countdown tab — with its own countdown to the Wellington launch (for you: Wednesday, November 18, 12:00 noon), 12 hours before the German launch."),

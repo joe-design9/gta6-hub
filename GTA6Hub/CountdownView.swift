@@ -141,6 +141,14 @@ struct CountdownView: View {
                             Text(store.tr("🔥 12 Stunden früher als dein Deutschland-Start!", "🔥 12 hours earlier than your German launch!"))
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(Vice.orange)
+                            let nzInterval = Int(nzUnlock.timeIntervalSince(now))
+                            HStack(spacing: 10) {
+                                totalTile(value: nzInterval / 3600, label: store.tr("STUNDEN", "HOURS"))
+                                totalTile(value: nzInterval / 60, label: store.tr("MINUTEN", "MINUTES"))
+                                if showSeconds {
+                                    totalTile(value: nzInterval, label: store.tr("SEKUNDEN", "SECONDS"))
+                                }
+                            }
                         } else {
                             Text(store.tr("NEUSEELAND SPIELT SCHON 🎉", "NEW ZEALAND IS ALREADY PLAYING 🎉"))
                                 .font(.title3.weight(.bold))
