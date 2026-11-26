@@ -96,8 +96,10 @@ jobs:
           capture onboarding -QAOnboarding
           capture home -UITestMode
           capture countdown -UITestMode -QAStartTab 1
-          capture preload -UITestMode -QAPreload
-          capture preload-slow -UITestMode -QAPreloadSlow
+          capture dashboard -UITestMode -QADashboard
+          capture cheats -UITestMode -QACheats
+          capture podcast -UITestMode -QAPodcast
+          capture secrets -UITestMode -QASecrets
           capture chat -UITestMode -QAStartTab 2
           capture news -UITestMode -QAStartTab 3
           capture gallery -UITestMode -QAGallery
@@ -118,7 +120,7 @@ jobs:
           xcrun simctl launch --terminate-running-process booted dev.joe.gta6hub -QAStartTab 3 -QAArticle || true
           sleep 14
           xcrun simctl io booted screenshot shots/article.png
-          
+
           ls -la shots
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
