@@ -94,35 +94,37 @@ struct FactOfDayIntent: AppIntent {
     }
 }
 
-/// „Wie weit ist meine Launch-Checkliste?" — Fortschritt aus der App.
+/// „Wie weit ist meine 100%-Checkliste?" — Fortschritt aus der App
+/// (v2.1.0; derselbe UserDefaults-Stand wie ChecklistView).
 struct ChecklistProgressIntent: AppIntent {
-    static var title: LocalizedStringResource = "Launch-Checkliste"
-    static var description = IntentDescription("Sagt dir, wie viele Punkte deiner GTA-6-Launch-Checkliste schon erledigt sind.")
+    static var title: LocalizedStringResource = "100%-Checkliste"
+    static var description = IntentDescription("Sagt dir, wie viele Punkte deiner GTA-6-100-Prozent-Checkliste schon erledigt sind.")
     static var openAppWhenRun: Bool = false
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let done = UserDefaults.standard.stringArray(forKey: "launchChecklist.v1")?.count ?? 0
-        let total = 12
-        let percent = done * 100 / total
+        let doneSet = Set(UserDefaults.standard.stringArray(forKey: "checklist100.v1") ?? [])
+        let total = ChecklistView.totalCount
+        let done = ChecklistView.sections.flatMap(\.items).filter { doneSet.contains($0.id) }.count
+        let percent = total > 0 ? done * 100 / total : 0
         let text: String
         if done >= total {
             text = Lang.tr(
-                "Alles erledigt: \(done) von \(total) Punkten. Du bist startklar für Leonida!",
-                "All done: \(done) of \(total) items. You're ready for Leonida!")
+                "Alles erledigt: \(done) von \(total) Punkten. 100 Prozent — die Trophäe „A Long Road" gehört dir!",
+                "All done: \(done) of \(total) items. 100 percent — the “A Long Road” trophy is yours!")
         } else if done == 0 {
             text = Lang.tr(
-                "Noch nichts abgehakt: 0 von \(total) Punkten auf deiner Launch-Checkliste. Der Preload startet am 10. November.",
-                "Nothing ticked off yet: 0 of \(total) items on your launch checklist. The preload starts on November 10.")
+                "Noch nichts abgehakt: 0 von \(total) Punkten auf deiner 100%-Checkliste. Nach der Story ist alles im Free Roam machbar.",
+                "Nothing ticked off yet: 0 of \(total) items on your 100% checklist. After the story, everything is doable in free roam.")
         } else {
             text = Lang.tr(
-                "\(done) von \(total) Punkten erledigt — das sind \(percent) Prozent deiner Launch-Checkliste.",
-                "\(done) of \(total) items done — that's \(percent) percent of your launch checklist.")
+                "\(done) von \(total) Punkten erledigt — das sind \(percent) Prozent deiner 100%-Checkliste.",
+                "\(done) of \(total) items done — that's \(percent) percent of your 100% checklist.")
         }
         return .result(dialog: "\(text)")
     }
 }
 
-/// „Wie schütze ich mich vor Spoilern?" — der Spoiler-Schutz-Hub als
+/// „Wie schütze ich mich vor Spoilern?" — der Spoiler-Schutz als
 /// Siri-Ansage (v2.0.0): Status des Leak-Filters, Umfang der Mute-Liste
 /// und die erste Spoiler-Welle mit Datum und Uhrzeit.
 struct SpoilerProtectionIntent: AppIntent {
@@ -143,21 +145,21 @@ struct SpoilerProtectionIntent: AppIntent {
         let now = Date()
         let filterLine = filterOn
             ? Lang.tr("Der Leak-Filter im Hub ist an.", "The leak filter in the Hub is on.")
-            : Lang.tr("Der Leak-Filter im Hub ist aus — schalte ihn im Spoiler-Schutz-Hub ein.", "The leak filter in the Hub is off — switch it on in the Spoiler Shield hub.")
+            : Lang.tr("Der Leak-Filter im Hub ist aus — schalte ihn in den Einstellungen ein.", "The leak filter in the Hub is off — switch it on in Settings.")
         let text: String
         if now >= GTA6.releaseDate {
             text = Lang.tr(
-                "GTA 6 ist draußen. Für alles, was du noch nicht gesehen hast: \(count) Stichworte liegen im Spoiler-Schutz-Hub zum Kopieren bereit. \(filterLine)",
-                "GTA 6 is out. For everything you haven't seen yet: \(count) keywords are ready to copy in the Spoiler Shield hub. \(filterLine)")
+                "GTA 6 ist draußen. Für alles, was du noch nicht gesehen hast: Blockiere in deinen Apps die \(count) Stichworte rund um Story, Ende und Verrat. \(filterLine)",
+                "GTA 6 is out. For everything you haven't seen yet: block the \(count) keywords around story, ending and betrayal in your apps. \(filterLine)")
         } else if now >= firstWave {
             text = Lang.tr(
-                "Achtung, die Spoiler-Welle läuft: In Neuseeland und Australien wird schon gespielt. Bleib bis Mitternacht offline, halte Push-Mitteilungen und Gruppenchats stumm und kopiere dir die \(count) Stichworte aus dem Spoiler-Schutz-Hub. \(filterLine)",
-                "Careful, the spoiler wave is running: New Zealand and Australia are already playing. Stay offline until midnight, keep push notifications and group chats muted, and copy the \(count) keywords from the Spoiler Shield hub. \(filterLine)")
+                "Achtung, die Spoiler-Welle läuft: In Neuseeland und Australien wird schon gespielt. Bleib bis Mitternacht offline, halte Push-Mitteilungen und Gruppenchats stumm und blockiere die \(count) Stichworte in deinen Apps. \(filterLine)",
+                "Careful, the spoiler wave is running: New Zealand and Australia are already playing. Stay offline until midnight, keep push notifications and group chats muted, and block the \(count) keywords in your apps. \(filterLine)")
         } else {
             let r = HubSpeech.remaining(to: firstWave)
             text = Lang.tr(
-                "Bis zur ersten Spoiler-Welle am 18. November um 12 Uhr sind es noch \(HubSpeech.duration(days: r.days, hours: r.hours)). Kopiere dir im Spoiler-Schutz-Hub die \(count) Stichworte für X, TikTok, YouTube, Reddit und Instagram, schalte Push-Mitteilungen und Gruppenchats stumm. \(filterLine)",
-                "The first spoiler wave hits on November 18 at noon — \(HubSpeech.duration(days: r.days, hours: r.hours)) to go. Copy the \(count) keywords for X, TikTok, YouTube, Reddit and Instagram from the Spoiler Shield hub, and mute push notifications and group chats. \(filterLine)")
+                "Bis zur ersten Spoiler-Welle am 18. November um 12 Uhr sind es noch \(HubSpeech.duration(days: r.days, hours: r.hours)). Blockiere die \(count) Stichworte für X, TikTok, YouTube, Reddit und Instagram, schalte Push-Mitteilungen und Gruppenchats stumm. \(filterLine)",
+                "The first spoiler wave hits on November 18 at noon — \(HubSpeech.duration(days: r.days, hours: r.hours)) to go. Block the \(count) keywords for X, TikTok, YouTube, Reddit and Instagram, and mute push notifications and group chats. \(filterLine)")
         }
         return .result(dialog: "\(text)")
     }

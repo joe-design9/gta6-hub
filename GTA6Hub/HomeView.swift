@@ -12,22 +12,18 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                // LazyVStack (Performance-Fix): Die Glas-Karten unterhalb
-                // der Falz werden erst gebaut, wenn sie in Sicht kommen —
-                // vorher lagen alle Karten samt Glas und Schatten ab dem
-                // Start gleichzeitig im Render-Baum.
-                LazyVStack(spacing: 16) {
+                VStack(spacing: 16) {
                     miniCountdown
                     if let top = store.news.first {
                         topStory(top)
                     }
                     factCard
-                    spoilerCard
+                    dashboardCard
+                    cheatsCard
                     quickActions
                     exploreRow
                     tipsCard
                     checklistCard
-                    preloadCard
                     oracleCard
                 }
                 .padding(.horizontal, 16)
@@ -176,16 +172,16 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Spoiler-Schutz (v2.0.0)
+    // MARK: - Spielstand (v2.1.0)
 
-    private var spoilerCard: some View {
+    private var dashboardCard: some View {
         NavigationLink {
-            SpoilerShieldView()
+            DashboardView()
         } label: {
             GlassCard {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 14) {
-                        Image(systemName: "eye.slash.fill")
+                        Image(systemName: "chart.bar.fill")
                             .font(.title3)
                             .foregroundStyle(.white)
                             .frame(width: 44, height: 44)
@@ -194,10 +190,10 @@ struct HomeView: View {
                                     .fill(Vice.sunset)
                             }
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(store.tr("SPOILER-SCHUTZ", "SPOILER SHIELD"))
+                            Text(store.tr("MEIN SPIELSTAND", "MY PROGRESS"))
                                 .font(.caption2.weight(.bold)).tracking(1.5)
                                 .foregroundStyle(.white.opacity(0.55))
-                            Text(store.tr("Bleib spoilerfrei bis Mitternacht", "Stay spoiler-free until midnight"))
+                            Text(store.tr("Der Weg zum wahren Ende", "The road to the true ending"))
                                 .font(.headline)
                                 .foregroundStyle(.white)
                         }
@@ -207,8 +203,54 @@ struct HomeView: View {
                             .foregroundStyle(Vice.coral)
                     }
                     Text(store.tr(
-                        "\(SpoilerKeywords.all.count) Stichworte mit einem Tipp kopieren, der Spoiler-Wellen-Zeitplan und die Launch-Tag-Checkliste — dein Schutzschild gegen Leaks auf X, TikTok, YouTube & Co.",
-                        "Copy \(SpoilerKeywords.all.count) keywords in one tap, plus the spoiler wave schedule and the launch-day checklist — your shield against leaks on X, TikTok, YouTube & co."
+                        "Family Savings bis 2 Mio. $, Criminal Profile von Jason & Lucia, Beziehung und Trophäen — deine Zentrale nach der Story.",
+                        "Family Savings up to $2M, Jason & Lucia's criminal profiles, relationship and trophies — your hub after the story."
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.68))
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(18)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Cheats (v2.1.0)
+
+    private var cheatsCard: some View {
+        NavigationLink {
+            CheatsView()
+        } label: {
+            GlassCard {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 14) {
+                        Image(systemName: "gamecontroller.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white)
+                            .frame(width: 44, height: 44)
+                            .background {
+                                Circle()
+                                    .fill(Vice.sunset)
+                            }
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("CHEATS")
+                                .font(.caption2.weight(.bold)).tracking(1.5)
+                                .foregroundStyle(.white.opacity(0.55))
+                            Text(store.tr("Alle 61 Cheats im Spiel", "All 61 cheats in the game"))
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Vice.coral)
+                    }
+                    Text(store.tr(
+                        "Effekt, Freischalt-Aufgabe und Eingabecode zu jedem Cheat — ehrlich markiert, welche Codes die Community noch sucht.",
+                        "Effect, unlock challenge and input code for every cheat — with an honest note on the codes the community is still hunting."
                     ))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.68))
@@ -338,7 +380,7 @@ struct HomeView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Launch-Checkliste (v1.3.0)
+    // MARK: - 100%-Checkliste (v2.1.0, vorher Launch-Checkliste)
 
     private var checklistCard: some View {
         NavigationLink {
@@ -355,58 +397,15 @@ struct HomeView: View {
                                 .fill(Vice.sunset)
                         }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(store.tr("LAUNCH-CHECKLISTE", "LAUNCH CHECKLIST"))
+                        Text(store.tr("100%-CHECKLISTE", "100% CHECKLIST"))
                             .font(.caption2.weight(.bold)).tracking(1.5)
                             .foregroundStyle(.white.opacity(0.55))
-                        Text(store.tr("Startklar für Leonida?", "Ready for Leonida?"))
+                        Text(store.tr("Der Weg zu 100 %", "The road to 100%"))
                             .font(.headline)
                             .foregroundStyle(.white)
                         Text(store.tr(
-                            "Preload, Controller, Snacks: Hak Punkt für Punkt ab und sieh im Fortschrittsring, wie launchfertig du bist.",
-                            "Preload, controllers, snacks: tick everything off and watch the progress ring show how launch-ready you are."
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.65))
-                        .multilineTextAlignment(.leading)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(Vice.coral)
-                }
-                .padding(18)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Preload-Rechner (v1.7.0)
-
-    private var preloadCard: some View {
-        NavigationLink {
-            PreloadView()
-        } label: {
-            GlassCard {
-                HStack(spacing: 14) {
-                    Image(systemName: "arrow.down.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background {
-                            Circle()
-                                .fill(Vice.sunset)
-                        }
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(store.tr("PRELOAD-RECHNER", "PRELOAD CALCULATOR"))
-                            .font(.caption2.weight(.bold)).tracking(1.5)
-                            .foregroundStyle(.white.opacity(0.55))
-                        Text(store.tr("Wie lange lädt deine Leitung?", "How long does your line take?"))
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        Text(store.tr(
-                            "Preload ✅ durch (209,8 GB). Der Rechner zeigt, wie lange der Download mit jeder Leitung gedauert hätte — plus Unlock-Zeiten weltweit.",
-                            "Preload ✅ done (209.8 GB). The calculator shows how long the download would take on any line — plus worldwide unlock times."
+                            "Gang Operations, Bank Jobs, Sammel-Spots: Hak Punkt für Punkt ab und sieh im Fortschrittsring, wie nah du an der „A Long Road“-Trophäe bist.",
+                            "Gang operations, bank jobs, collectibles: tick everything off and watch the progress ring show how close you are to the “A Long Road” trophy."
                         ))
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.65))

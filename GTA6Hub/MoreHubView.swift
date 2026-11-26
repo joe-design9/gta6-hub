@@ -4,6 +4,9 @@ import SwiftUI
 /// in die das System bei mehr als fünf Tabs den Rest quetscht. Gleiche
 /// Einträge wie früher — aber im Vice-Look mit Sonnenuntergang, Palmen
 /// und Glas-Zeilen wie im Rest der App.
+/// v2.1.0: Der Spielstand bekommt die große Karte oben; neu dabei sind
+/// Cheats, Podcast und Geheime Orte. Spoiler-Schutz-Hub und
+/// Preload-Rechner sind mit dem Launch erfüllt und entfernt.
 struct MoreHubView: View {
     @EnvironmentObject private var store: AppStore
     @AppStorage("accentColor") private var accentColor = "coral"
@@ -12,11 +15,11 @@ struct MoreHubView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    spoilerFeatureCard
+                    dashboardFeatureCard
                     hubCard
                     Text(store.tr(
-                        "Alles an einem Ort: Spoiler-Schutz, Galerie, Karte, Nostalgie, Einstellungen und die Update-Historie. 🌴",
-                        "Everything in one place: spoiler shield, gallery, map, nostalgia, settings and the update history. 🌴"
+                        "Alles an einem Ort: Spielstand, Cheats, Podcast, geheime Orte, Galerie, Karte, Nostalgie, Einstellungen und die Update-Historie. 🌴",
+                        "Everything in one place: progress, cheats, podcast, secret spots, gallery, map, nostalgia, settings and the update history. 🌴"
                     ))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.5))
@@ -34,16 +37,16 @@ struct MoreHubView: View {
         }
     }
 
-    /// Der Spoiler-Schutz bekommt in „Mehr" eine eigene, auffällige Karte
-    /// über der Liste (v2.0.0) — er ist der wichtigste neue Bereich.
-    private var spoilerFeatureCard: some View {
+    /// Der Spielstand bekommt in „Mehr" die eigene, auffällige Karte
+    /// über der Liste (v2.1.0) — er ist die neue Zentrale nach der Story.
+    private var dashboardFeatureCard: some View {
         NavigationLink {
-            SpoilerShieldView()
+            DashboardView()
         } label: {
             GlassCard {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(spacing: 12) {
-                        Image(systemName: "eye.slash.fill")
+                        Image(systemName: "chart.bar.fill")
                             .font(.title2)
                             .foregroundStyle(.white)
                             .frame(width: 48, height: 48)
@@ -51,10 +54,10 @@ struct MoreHubView: View {
                                 Circle().fill(Vice.sunset)
                             }
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(store.tr("SPOILER-SCHUTZ-HUB", "SPOILER SHIELD HUB"))
+                            Text(store.tr("MEIN SPIELSTAND", "MY PROGRESS"))
                                 .font(.caption2.weight(.bold)).tracking(1.5)
                                 .foregroundStyle(.white.opacity(0.55))
-                            Text(store.tr("Erst spielen, dann lesen", "Play first, read later"))
+                            Text(store.tr("Der Weg zum wahren Ende", "The road to the true ending"))
                                 .font(.headline)
                                 .foregroundStyle(.white)
                         }
@@ -64,8 +67,8 @@ struct MoreHubView: View {
                             .foregroundStyle(Vice.coral)
                     }
                     Text(store.tr(
-                        "Mute-Listen für X, TikTok, YouTube, Reddit und Instagram, der Spoiler-Wellen-Zeitplan und die Launch-Tag-Checkliste.",
-                        "Mute lists for X, TikTok, YouTube, Reddit and Instagram, the spoiler wave schedule and the launch-day checklist."
+                        "Family Savings bis 2 Mio. $, Criminal Profile von Jason & Lucia, Beziehung und Trophäen — alles an einem Ort, alles von Hand gepflegt.",
+                        "Family Savings up to $2M, Jason & Lucia's criminal profiles, relationship and trophies — everything in one place, maintained by hand."
                     ))
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.68))
@@ -83,6 +86,22 @@ struct MoreHubView: View {
     private var hubCard: some View {
         GlassCard {
             VStack(spacing: 0) {
+                hubRow(icon: "gamecontroller.fill", title: "Cheats", note: store.tr("Alle 61 Cheats — Effekt, Aufgabe & Code", "All 61 cheats — effect, challenge & code")) {
+                    CheatsView()
+                }
+                divider
+                hubRow(icon: "podcast", title: "Podcast", note: store.tr("„GTA 6 News“ mit Finn & Mia — Folgen direkt hören", "“GTA 6 News” with Finn & Mia — listen right here")) {
+                    PodcastView()
+                }
+                divider
+                hubRow(icon: "mappin.and.ellipse", title: store.tr("Geheime Orte", "Secret Spots"), note: store.tr("Freddies Bunker, Satan, Memorial & alle Flughäfen", "Freddie's bunker, Satan, the memorial & all airports")) {
+                    SecretsView()
+                }
+                divider
+                hubRow(icon: "checklist", title: store.tr("100%-Checkliste", "100% Checklist"), note: store.tr("Der Weg zur Trophäe „A Long Road“", "The road to the “A Long Road” trophy")) {
+                    ChecklistView()
+                }
+                divider
                 hubRow(icon: "photo.on.rectangle.angled", title: store.tr("Galerie", "Gallery"), note: store.tr("21 Artworks & Screenshots aus Leonida", "21 artworks & screenshots from Leonida")) {
                     GalleryView()
                 }
@@ -93,10 +112,6 @@ struct MoreHubView: View {
                 divider
                 hubRow(icon: "heart.fill", title: store.tr("Nostalgie", "Nostalgia"), note: store.tr("Deine Wartezeit — von Trailer 1 bis heute", "Your wait — from Trailer 1 to today")) {
                     NostalgiaView()
-                }
-                divider
-                hubRow(icon: "arrow.down.circle.fill", title: store.tr("Preload-Rechner", "Preload Calculator"), note: store.tr("209,8 GB: Download-Zeit je nach Leitung, Launch-Status & Unlock-Zeiten", "209.8 GB: download time by line speed, launch status & unlock times")) {
-                    PreloadView()
                 }
                 divider
                 hubRow(icon: "gearshape.fill", title: store.tr("Einstellungen", "Settings"), note: store.tr("Design, Sprache, KI-Engine & mehr", "Design, language, AI engine & more")) {

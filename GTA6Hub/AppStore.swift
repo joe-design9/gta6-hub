@@ -35,15 +35,15 @@ final class AppStore: ObservableObject {
     @Published var qaShowNostalgia = false
     @Published var qaShowSettings = false
     @Published var qaShowUpdateNews = false
-    /// QA-Screenshot des Preload-Rechners (v1.7.0, -QAPreload /
-    /// -QAPreloadSlow für die Ansicht mit 5-Mbit/s-Leitung).
-    @Published var qaShowPreload = false
+    /// QA-Screenshots der v2.1.0-Ansichten (Spielstand, Cheats,
+    /// Podcast, Geheime Orte).
+    @Published var qaShowDashboard = false
+    @Published var qaShowCheats = false
+    @Published var qaShowPodcast = false
+    @Published var qaShowSecrets = false
     /// QA-Aufnahme der Design-Karte (-QASettingsDesign): Die Einstellungen
     /// scrollen damit direkt zu den neuen Design-Optionen.
     @Published var qaShowSettingsDesign = false
-    /// QA-Screenshot des Spoiler-Schutz-Hubs (v2.0.0, -QASpoiler /
-    /// -QASpoilerWave).
-    @Published var qaShowSpoiler = false
     #endif
 
     /// Anzeigename des Assistenten — Standard „Mochi", bis der Nutzer
@@ -108,13 +108,11 @@ final class AppStore: ObservableObject {
         qaShowNostalgia = args.contains("-QANostalgia")
         qaShowSettings = args.contains("-QASettings")
         qaShowUpdateNews = args.contains("-QAUpdateNews")
-        qaShowPreload = args.contains("-QAPreload") || args.contains("-QAPreloadSlow")
-        // Langsame Leitung für die zweite Rechner-Aufnahme (v1.7.0).
-        if args.contains("-QAPreloadSlow") {
-            UserDefaults.standard.set(5.0, forKey: "preloadCalcSpeed")
-        }
+        qaShowDashboard = args.contains("-QADashboard")
+        qaShowCheats = args.contains("-QACheats")
+        qaShowPodcast = args.contains("-QAPodcast")
+        qaShowSecrets = args.contains("-QASecrets")
         qaShowSettingsDesign = args.contains("-QASettingsDesign")
-        qaShowSpoiler = args.contains("-QASpoiler") || args.contains("-QASpoilerWave")
         // Neon-Kulisse für die QA-Aufnahmen (v2.0.0).
         if args.contains("-QANeon") {
             UserDefaults.standard.set("neon", forKey: "backdropStyle")
@@ -265,9 +263,9 @@ final class AppStore: ObservableObject {
             NewsItem(title: "Take-Two bestätigt: GTA 6 bleibt beim November-Termin", source: "Branchen News", link: URL(string: "https://www.rockstargames.com/VI")!, published: now.addingTimeInterval(-80000)),
         ]
         newsUpdated = now
-        // Checkliste im QA-Seed teilweise abgehakt, damit der
+        // 100%-Checkliste im QA-Seed teilweise abgehakt, damit der
         // Fortschrittsring auf der Aufnahme gefüllt ist.
-        UserDefaults.standard.set(["preload", "storage", "controller", "snacks"], forKey: "launchChecklist.v1")
+        UserDefaults.standard.set(["story-done", "optional-100", "gang-ops"], forKey: "checklist100.v1")
     }
     #endif
 }

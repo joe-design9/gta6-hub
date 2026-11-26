@@ -15,6 +15,22 @@ enum HubChangelog {
 
     /// Neueste Version zuerst.
     static let all: [Entry] = [
+        Entry(version: "2.1.0", dateDE: "25. November 2026", dateEN: "November 25, 2026", highlights: [
+            (de: "🆕 Mein Spielstand: Family Savings bis 2 Mio. $, Criminal Profile von Jason & Lucia, Beziehung und Trophäen — alles editierbar und gespeichert.",
+             en: "🆕 My Progress: Family Savings up to $2M, Jason & Lucia's criminal profiles, relationship and trophies — all editable and saved."),
+            (de: "🎮 Cheats: Alle 61 Cheats mit Effekt, Freischalt-Aufgabe und Eingabecode — ehrlich markiert, welche Codes die Community noch nicht gefunden hat.",
+             en: "🎮 Cheats: All 61 cheats with effect, unlock challenge and input code — with an honest note on the codes the community hasn't found yet."),
+            (de: "🗺️ Geheime Orte: Freddies Bunker, Satans „Circles of Hell", das Deep Roots Memorial und alle 9 Flughäfen — mit Gefunden-Häkchen.",
+             en: "🗺️ Secret Spots: Freddie's bunker, Satan's “Circles of Hell”, the Deep Roots Memorial and all 9 airports — with found checkmarks."),
+            (de: "🎙️ Podcast-Tab: Die „GTA 6 News"-Folgen mit Finn & Mia direkt in der App hören.",
+             en: "🎙️ Podcast tab: Listen to the “GTA 6 News” episodes with Finn & Mia right in the app."),
+            (de: "⏱️ Der Countdown ist jetzt „GTA 6 Live": Seit-dem-Launch-Zähler plus Countdowns zu den Game Awards und zum Online-Wettfenster (5.–26.12.).",
+             en: "⏱️ The countdown is now “GTA 6 Live”: a since-launch counter plus countdowns to the Game Awards and the Online bet window (Dec 5–26)."),
+            (de: "✅ Die Launch-Checkliste ist jetzt die interaktive 100%-Checkliste mit Prozent-Fortschritt.",
+             en: "✅ The launch checklist is now the interactive 100% checklist with a percentage progress header."),
+            (de: "🧹 Aufgeräumt: Preload-Rechner und Spoiler-Schutz-Hub sind mit dem Launch erfüllt und entfernt.",
+             en: "🧹 Cleaned up: the preload calculator and spoiler shield hub served their purpose and are removed."),
+        ]),
         Entry(version: "2.0.4", dateDE: "16. November 2026", dateEN: "November 16, 2026", highlights: [
             (de: "Die Neuseeland-Karte zeigt jetzt auch die Gesamtzahlen bis zum Start: Stunden, Minuten und Sekunden.",
              en: "The New Zealand card now also shows the totals until launch: hours, minutes and seconds."),

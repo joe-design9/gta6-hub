@@ -1,49 +1,37 @@
 import SwiftUI
 
-/// Eigener Tab „GTA 6 Countdown“: hier lebt alles rund um den Countdown —
-/// große Anzeige, Gesamtwerte (Stunden/Minuten/Sekunden), Fortschritt seit
-/// Trailer 1, Meilensteine und der weltweite Release nach Zeitzonen.
+/// Tab „GTA 6 Live“ (v2.1.0, vorher Countdown): Das Spiel ist da —
+/// hier läuft jetzt der „Seit dem Launch"-Zähler, dazu Countdowns
+/// zu den Game Awards und zum Online-Wettfenster. Die alten Karten
+/// (Preload, NZ-Start, Welt-Release) sind mit dem Launch erfüllt.
 struct CountdownView: View {
     @EnvironmentObject private var store: AppStore
-    @AppStorage("focusZone") private var focusZone = "Europe/Berlin"
     @AppStorage("countdownShowSeconds") private var showSeconds = true
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                // LazyVStack (Performance-Fix): Abschnitte unterhalb der
-                // Falz (Meilensteine, Welt-Release) werden erst bei Sicht
-                // gebaut statt alle Glas-Karten sofort zu rendern.
                 LazyVStack(spacing: 16) {
-                    countdownCard
-                    if EffectiveNow.value(Date()) < GTA6.releaseDate { nzStartCard }
-                    if EffectiveNow.value(Date()) < GTA6.releaseDate {
-                        if EffectiveNow.value(Date()) >= GTA6.preloadDate {
-                            preloadDoneCard
-                        } else {
-                            preloadCard
-                        }
-                        rechnerLinkCard
-                    }
+                    sinceLaunchCard
                     totalsCard
-                    progressCard
-                    milestones
-                    worldReleaseCard
+                    gameAwardsCard
+                    betWindowCard
+                    waitCard
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
                 .padding(.bottom, 24)
             }
-            .navigationTitle("GTA 6 Countdown")
+            .navigationTitle("GTA 6 Live")
             .navigationBarTitleDisplayMode(.large)
             .scrollContentBackground(.hidden)
             .background { AppBackdrop() }
         }
     }
 
-    // MARK: - Großer Countdown
+    // MARK: - Seit dem Launch
 
-    private var countdownCard: some View {
+    private var sinceLaunchCard: some View {
         GlassCard {
             VStack(spacing: 14) {
                 HStack {
@@ -59,106 +47,28 @@ struct CountdownView: View {
                 TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                     let now = EffectiveNow.value(context.date)
                     VStack(spacing: 14) {
-                        if now >= GTA6.releaseDate {
-                            Text("ES IST DA 🎉")
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Vice.sunset)
-                            let parts = parts(from: GTA6.releaseDate, now: now)
-                            HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
-                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
-                                timeTile(value: parts.minutes, label: "MIN")
-                                if showSeconds {
-                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
-                                }
+                        Text("ES IST DA 🎉")
+                            .font(.title3.weight(.bold))
+                            .foregroundStyle(Vice.sunset)
+                        let parts = parts(from: GTA6.releaseDate, now: now)
+                        HStack(spacing: 10) {
+                            timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
+                            timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
+                            timeTile(value: parts.minutes, label: "MIN")
+                            if showSeconds {
+                                timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
                             }
-                            Text(store.tr("seit dem Launch — willkommen in Leonida 🌴", "since launch — welcome to Leonida 🌴"))
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
-                        } else {
-                            let parts = parts(to: GTA6.releaseDate, now: now)
-                            HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
-                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
-                                timeTile(value: parts.minutes, label: "MIN")
-                                if showSeconds {
-                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
-                                }
-                            }
-                            Text(store.tr("bis zum Launch um Mitternacht 🎮", "until the midnight launch 🎮"))
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
                         }
-                    }
-                }
-            }
-            .padding(20)
-        }
-    }
-
-    // MARK: - Neuseeland-Start (18.11.2026, 12:00 Uhr Berlin)
-
-    private var nzStartCard: some View {
-        GlassCard {
-            VStack(spacing: 14) {
-                HStack {
-                    Text(store.tr("NEUSEELAND-START", "NEW ZEALAND LAUNCH"))
-                        .font(.caption.weight(.bold))
-                        .tracking(2)
-                        .foregroundStyle(Vice.sunset)
-                    Spacer()
-                    Text("18.11.2026")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
-                    let now = EffectiveNow.value(context.date)
-                    let nzUnlock = unlockDate(for: "Pacific/Auckland")
-                    VStack(spacing: 14) {
-                        if now < nzUnlock {
-                            let parts = parts(to: nzUnlock, now: now)
-                            HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
-                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
-                                timeTile(value: parts.minutes, label: "MIN")
-                                if showSeconds {
-                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
-                                }
-                            }
-                            VStack(spacing: 3) {
-                                Text(store.tr(
-                                    "Start in Wellington: \(timeString(nzUnlock, tzID: "Pacific/Auckland", style: "EEEE, d. MMMM · HH:mm")) Uhr",
-                                    "Launch in Wellington: \(timeString(nzUnlock, tzID: "Pacific/Auckland", style: "EEEE, d. MMMM · HH:mm"))"
-                                ))
-                                Text(store.tr(
-                                    "Bei dir in Berlin: \(timeString(nzUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm")) Uhr",
-                                    "For you in Berlin: \(timeString(nzUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm"))"
-                                ))
-                            }
+                        Text(store.tr("seit dem Launch — willkommen in Leonida 🌴", "since launch — welcome to Leonida 🌴"))
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.75))
-                            .multilineTextAlignment(.center)
-                            Text(store.tr("🔥 12 Stunden früher als dein Deutschland-Start!", "🔥 12 hours earlier than your German launch!"))
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(Vice.orange)
-                            let nzInterval = Int(nzUnlock.timeIntervalSince(now))
-                            HStack(spacing: 10) {
-                                totalTile(value: nzInterval / 3600, label: store.tr("STUNDEN", "HOURS"))
-                                totalTile(value: nzInterval / 60, label: store.tr("MINUTEN", "MINUTES"))
-                                if showSeconds {
-                                    totalTile(value: nzInterval, label: store.tr("SEKUNDEN", "SECONDS"))
-                                }
-                            }
-                        } else {
-                            Text(store.tr("NEUSEELAND SPIELT SCHON 🎉", "NEW ZEALAND IS ALREADY PLAYING 🎉"))
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Vice.sunset)
-                                .multilineTextAlignment(.center)
-                            Text(store.tr("Seit 12:00 Uhr wird in Leonida gespielt — dein Start ist heute Nacht um 00:00 Uhr. 🌴", "Leonida has been live since noon — your launch is tonight at midnight. 🌴"))
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
-                                .multilineTextAlignment(.center)
-                        }
+                        Text(store.tr(
+                            "Neuseeland war 12 Stunden früher dran: Dort läuft das Spiel schon seit dem 18.11. um 12:00 Uhr.",
+                            "New Zealand was 12 hours early: the game has been live there since Nov 18 at noon."
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.55))
+                        .multilineTextAlignment(.center)
                     }
                 }
             }
@@ -186,147 +96,18 @@ struct CountdownView: View {
         }
     }
 
-    // MARK: - Preload-Countdown (10.11.2026, lokale Mitternacht)
-
-    private var preloadCard: some View {
-        GlassCard {
-            VStack(spacing: 14) {
-                HStack {
-                    Text("PRELOAD")
-                        .font(.caption.weight(.bold))
-                        .tracking(2)
-                        .foregroundStyle(Vice.sunset)
-                    Spacer()
-                    Text("10.11.2026")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-                TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
-                    let now = EffectiveNow.value(context.date)
-                    VStack(spacing: 14) {
-                        if now >= GTA6.preloadDate {
-                            Text(store.tr("DER PRELOAD LÄUFT 🎉", "THE PRELOAD IS LIVE 🎉"))
-                                .font(.title3.weight(.bold))
-                                .foregroundStyle(Vice.sunset)
-                            Text(store.tr("GTA 6 lädt auf deiner PS5 — alles bereit für den Launch um Mitternacht 🌴", "GTA 6 is downloading on your PS5 — all set for the midnight launch 🌴"))
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
-                                .multilineTextAlignment(.center)
-                        } else {
-                            let parts = parts(to: GTA6.preloadDate, now: now)
-                            HStack(spacing: 10) {
-                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
-                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
-                                timeTile(value: parts.minutes, label: "MIN")
-                                if showSeconds {
-                                    timeTile(value: parts.seconds, label: store.tr("SEK", "SEC"))
-                                }
-                            }
-                            Text(store.tr("bis zum Preload um Mitternacht — dann zieht deine PS5 den Download 📥", "until the midnight preload — then your PS5 grabs the download 📥"))
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.75))
-                        }
-                    }
-                }
-            }
-            .padding(20)
-        }
-    }
-
-    // MARK: - Preload-Status (abgeschlossen, v1.7.0)
-
-    private var preloadDoneCard: some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("PRELOAD")
-                        .font(.caption.weight(.bold))
-                        .tracking(2)
-                        .foregroundStyle(Vice.sunset)
-                    Spacer()
-                    Text("10.11.2026")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.6))
-                }
-                HStack(spacing: 10) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.green)
-                    Text(store.tr("ABGESCHLOSSEN", "COMPLETE"))
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(.white)
-                }
-                Text(store.tr(
-                    "Die 209,8 GB liegen auf der PS5 — der komplette globale Build, verschlüsselt bis zum Unlock. Jetzt zählt nur noch der Countdown oben bis Mitternacht. 🌴",
-                    "The 209.8 GB are on the PS5 — the full global build, encrypted until unlock. Now only the countdown above to midnight matters. 🌴"
-                ))
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.75))
-                .fixedSize(horizontal: false, vertical: true)
-            }
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    // MARK: - Link zum Preload-Rechner (v1.7.0)
-
-    private var rechnerLinkCard: some View {
-        NavigationLink {
-            PreloadView()
-        } label: {
-            GlassCard {
-                HStack(spacing: 14) {
-                    Image(systemName: "arrow.down.circle.fill")
-                        .font(.title3)
-                        .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
-                        .background {
-                            Circle()
-                                .fill(Vice.sunset)
-                        }
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(store.tr("PRELOAD-RECHNER", "PRELOAD CALCULATOR"))
-                            .font(.caption2.weight(.bold)).tracking(1.5)
-                            .foregroundStyle(.white.opacity(0.55))
-                        Text(store.tr("Wie lange lädt deine Leitung?", "How long does your line take?"))
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                        Text(store.tr(
-                            "209,8 GB durchrechnen — Dauer und Fertig-Uhrzeit je nach Mbit/s, dazu Unlock-Zeiten weltweit und die bestätigten Fakten vom 10. November.",
-                            "Run the numbers on 209.8 GB — duration and finish time for your Mbps, plus worldwide unlock times and the confirmed facts from November 10."
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.65))
-                        .multilineTextAlignment(.leading)
-                    }
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(Vice.coral)
-                }
-                .padding(18)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: - Gesamtwerte (Stunden / Minuten / Sekunden)
+    // MARK: - Gesamtwerte (Stunden / Minuten / Sekunden seit Launch)
 
     private var totalsCard: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 12) {
                 TimelineView(.periodic(from: .now, by: showSeconds ? 1 : 60)) { context in
                     let now = EffectiveNow.value(context.date)
-                    let released = now >= GTA6.releaseDate
-                    let interval = Int(abs(GTA6.releaseDate.timeIntervalSince(now)))
+                    let interval = Int(max(0, GTA6.releaseDate.timeIntervalSince(now) * -1))
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(released
-                             ? store.tr("SO LANGE BIST DU SCHON IN LEONIDA", "YOU'VE BEEN IN LEONIDA FOR")
-                             : store.tr("IN ZAHLEN — SO LANGE IST ES NOCH", "IN NUMBERS — STILL TO GO"))
-                        .font(.caption2.weight(.bold)).tracking(1.5)
-                        .foregroundStyle(.white.opacity(0.55))
+                        Text(store.tr("SO LANGE BIST DU SCHON IN LEONIDA", "YOU'VE BEEN IN LEONIDA FOR"))
+                            .font(.caption2.weight(.bold)).tracking(1.5)
+                            .foregroundStyle(.white.opacity(0.55))
                         HStack(spacing: 10) {
                             totalTile(value: interval / 3600, label: store.tr("STUNDEN", "HOURS"))
                             totalTile(value: interval / 60, label: store.tr("MINUTEN", "MINUTES"))
@@ -371,206 +152,124 @@ struct CountdownView: View {
         return f.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
-    // MARK: - Fortschritt der Wartezeit
+    // MARK: - The Game Awards (10.12.2026)
 
-    private var progressCard: some View {
+    private var gameAwardsCard: some View {
+        GlassCard {
+            VStack(spacing: 14) {
+                HStack {
+                    Text("THE GAME AWARDS 🏆")
+                        .font(.caption.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(Vice.sunset)
+                    Spacer()
+                    Text("10.12.2026")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                TimelineView(.periodic(from: .now, by: 60)) { context in
+                    let now = EffectiveNow.value(context.date)
+                    VStack(spacing: 14) {
+                        if now < GTA6.gameAwardsDate {
+                            let parts = parts(to: GTA6.gameAwardsDate, now: now)
+                            HStack(spacing: 10) {
+                                timeTile(value: parts.days, label: store.tr("TAGE", "DAYS"))
+                                timeTile(value: parts.hours, label: store.tr("STD", "HRS"))
+                                timeTile(value: parts.minutes, label: "MIN")
+                            }
+                            Text(store.tr(
+                                "bis zur großen Nacht: 8 Nominierungen für GTA 6 — darunter Game of the Year. Die Show läuft am US-Abend, bei uns also in der Nacht zum 11.12.",
+                                "until the big night: 8 nominations for GTA 6 — including Game of the Year. The show runs in the US evening, so overnight into Dec 11 for us."
+                            ))
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                        } else {
+                            Text(store.tr("AWARDS-NACHT 🎉", "AWARDS NIGHT 🎉"))
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(Vice.sunset)
+                            Text(store.tr(
+                                "Die Game Awards laufen (oder sind gelaufen) — 8 Nominierungen hatte GTA 6 im Gepäck.",
+                                "The Game Awards are on (or over) — GTA 6 came in with 8 nominations."
+                            ))
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                        }
+                    }
+                }
+            }
+            .padding(20)
+        }
+    }
+
+    // MARK: - Online-Wettfenster (5.–26.12.2026)
+
+    private var betWindowCard: some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text(store.tr("DIE ONLINE-WETTE 🎲", "THE ONLINE BET 🎲"))
+                        .font(.caption.weight(.bold))
+                        .tracking(2)
+                        .foregroundStyle(Vice.sunset)
+                    Spacer()
+                    Text("5.–26.12.2026")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.6))
+                }
+                TimelineView(.periodic(from: .now, by: 60)) { context in
+                    let now = EffectiveNow.value(context.date)
+                    VStack(alignment: .leading, spacing: 8) {
+                        if now < GTA6.betWindowStart {
+                            let days = parts(to: GTA6.betWindowStart, now: now).days
+                            Text(store.tr(
+                                "Die Wette: GTA VI Online shadow-droppt zwischen dem 5. und 26. Dezember. Das Fenster öffnet in \(days) Tagen — die Game Awards am 10.12. liegen mitten drin.",
+                                "The bet: GTA VI Online shadow-drops between December 5 and 26. The window opens in \(days) days — the Game Awards on Dec 10 sit right inside it."
+                            ))
+                        } else if now <= GTA6.betWindowEnd {
+                            let days = parts(to: GTA6.betWindowEnd, now: now).days
+                            Text(store.tr(
+                                "Das Fenster läuft 🎲 — noch \(days) Tage, in denen der Shadow-Drop fallen kann. Jeden Tag ohne Ankündigung wird es enger.",
+                                "The window is open 🎲 — \(days) days left for the shadow drop to land. Every day without an announcement makes it tighter."
+                            ))
+                        } else {
+                            Text(store.tr(
+                                "Das Fenster ist zu. Ob die Wette aufgegangen ist, steht in den News — GTA VI Online war zum Launch nicht angekündigt, also zählt nur, was Rockstar bis zum 26.12. gezeigt hat.",
+                                "The window has closed. Whether the bet paid off is in the news — GTA VI Online wasn't announced at launch, so only what Rockstar showed by Dec 26 counts."
+                            ))
+                        }
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.8))
+                    .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    // MARK: - Die Wartezeit (Rückblick)
+
+    private var waitCard: some View {
         let now = EffectiveNow.value(Date())
-        let total = GTA6.releaseDate.timeIntervalSince(GTA6.trailer1Date)
-        let elapsed = min(max(now.timeIntervalSince(GTA6.trailer1Date), 0), total)
-        let percent = total > 0 ? elapsed / total * 100 : 100
-        let sleeps = parts(to: GTA6.releaseDate, now: now).days
-        let percentText: String = {
-            let f = NumberFormatter()
-            f.numberStyle = .decimal
-            f.minimumFractionDigits = 1
-            f.maximumFractionDigits = 1
-            f.locale = Lang.locale
-            return f.string(from: NSNumber(value: percent)) ?? "0"
-        }()
+        let daysSinceTrailer = parts(from: GTA6.trailer1Date, now: now).days
         return GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 Text(store.tr("DIE WARTEZEIT", "THE WAIT"))
                     .font(.caption2.weight(.bold)).tracking(1.5)
                     .foregroundStyle(.white.opacity(0.55))
-                if now >= GTA6.releaseDate {
-                    Text(store.tr("100 % geschafft — die Wartezeit ist Geschichte. 🎉", "100% done — the wait is history. 🎉"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                } else {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            Capsule().fill(Color.white.opacity(0.12))
-                            Capsule()
-                                .fill(Vice.sunset)
-                                .frame(width: geo.size.width * CGFloat(percent / 100))
-                        }
-                    }
-                    .frame(height: 10)
-                    HStack {
-                        Text(store.tr("\(percentText) % der Wartezeit seit Trailer 1 sind geschafft", "\(percentText)% of the wait since Trailer 1 is done"))
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.7))
-                        Spacer()
-                        Text(store.tr("noch \(sleeps)× schlafen 😴", "\(sleeps) more sleeps 😴"))
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(.white.opacity(0.85))
-                    }
-                }
-            }
-            .padding(18)
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    // MARK: - Meilensteine
-
-    private var milestones: some View {
-        GlassCard {
-            VStack(spacing: 0) {
-                milestoneRow(icon: "arrow.down.circle.fill", title: store.tr("Preload startet", "Preload starts"), date: GTA6.preloadDate, color: Vice.orange)
-                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 52)
-                milestoneRow(icon: "gamecontroller.fill", title: "Release — GTA 6", date: GTA6.releaseDate, color: Vice.pink)
-            }
-            .padding(.vertical, 6)
-        }
-    }
-
-    private func milestoneRow(icon: String, title: String, date: Date, color: Color) -> some View {
-        let now = EffectiveNow.value(Date())
-        let reached = now >= date
-        let days = parts(to: date, now: now).days
-        return HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(color)
-                .frame(width: 28)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                Text(longDate(date))
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.55))
-            }
-            Spacer()
-            Text(reached ? "🎉" : days == 0 ? store.tr("heute Nacht 🎉", "tonight 🎉") : store.tr("noch \(days) Tage", "\(days) days to go"))
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.white.opacity(0.85))
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-    }
-
-    // MARK: - Release weltweit (Zeitzonen, Auswahl als Glas-Pills)
-
-    private struct WorldCity: Identifiable {
-        let name: String
-        let tzID: String
-        var id: String { tzID }
-    }
-
-    private var worldCities: [WorldCity] {
-        [
-            WorldCity(name: "Wellington", tzID: "Pacific/Auckland"),
-            WorldCity(name: "Sydney", tzID: "Australia/Sydney"),
-            WorldCity(name: store.tr("Tokio", "Tokyo"), tzID: "Asia/Tokyo"),
-            WorldCity(name: "Berlin", tzID: "Europe/Berlin"),
-            WorldCity(name: "London", tzID: "Europe/London"),
-            WorldCity(name: "New York", tzID: "America/New_York"),
-            WorldCity(name: "Los Angeles", tzID: "America/Los_Angeles"),
-        ]
-    }
-
-    /// Lokale Mitternacht am 19.11.2026 in der jeweiligen Zone = Unlock-Zeitpunkt dort.
-    private func unlockDate(for tzID: String) -> Date {
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = TimeZone(identifier: tzID) ?? TimeZone(identifier: "Europe/Berlin")!
-        return cal.date(from: DateComponents(year: 2026, month: 11, day: 19, hour: 0, minute: 0)) ?? GTA6.releaseDate
-    }
-
-    private func timeString(_ date: Date, tzID: String, style: String) -> String {
-        let f = DateFormatter()
-        f.locale = Lang.locale
-        f.timeZone = TimeZone(identifier: tzID)
-        f.dateFormat = style
-        return f.string(from: date)
-    }
-
-    private var worldReleaseCard: some View {
-        let cities = worldCities.sorted { unlockDate(for: $0.tzID) < unlockDate(for: $1.tzID) }
-        let focus = cities.first(where: { $0.tzID == focusZone }) ?? cities[3]
-        let focusUnlock = unlockDate(for: focus.tzID)
-        let berlinUnlock = unlockDate(for: "Europe/Berlin")
-        let diffHours = Int((focusUnlock.timeIntervalSince(berlinUnlock)) / 3600)
-        return GlassCard {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(store.tr("RELEASE WELTWEIT 🌍", "WORLDWIDE RELEASE 🌍"))
-                    .font(.caption2.weight(.bold)).tracking(1.5)
-                    .foregroundStyle(.white.opacity(0.55))
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(cities) { city in
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.2)) { focusZone = city.tzID }
-                            } label: {
-                                Text(city.name)
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 7)
-                                    .background {
-                                        if focusZone == city.tzID {
-                                            Capsule().fill(Vice.sunset)
-                                        } else {
-                                            Capsule()
-                                                .fill(.clear)
-                                                .glassEffect(.regular.tint(.white.opacity(0.08)), in: Capsule())
-                                        }
-                                    }
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(store.tr("Start in \(focus.name)", "Launch in \(focus.name)"))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                    Text(timeString(focusUnlock, tzID: focus.tzID, style: "EEEE, d. MMMM · HH:mm") + store.tr(" Uhr", ""))
-                        .font(.title3.weight(.bold))
-                        .foregroundStyle(Vice.sunset)
-                    if focus.tzID == "Europe/Berlin" {
-                        Text(store.tr("Deine Zone — hier startet's um Mitternacht. 🏠", "Your zone — it unlocks at midnight here. 🏠"))
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
-                    } else {
-                        Text(store.tr(
-                            "Bei dir in Berlin: \(timeString(focusUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm")) Uhr",
-                            "For you in Berlin: \(timeString(focusUnlock, tzID: "Europe/Berlin", style: "EEEE, d. MMMM · HH:mm"))"
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.6))
-                        Text(diffHours < 0
-                             ? store.tr("🔥 \(abs(diffHours)) Stunden früher als bei dir!", "🔥 \(abs(diffHours)) hours earlier than at home!")
-                             : store.tr("\(diffHours) Stunden nach deinem Start.", "\(diffHours) hours after your launch."))
-                        .font(.caption.weight(.bold))
-                        .foregroundStyle(diffHours < 0 ? Vice.orange : .white.opacity(0.6))
-                    }
-                }
-                Divider().overlay(Color.white.opacity(0.12))
-                VStack(spacing: 7) {
-                    ForEach(cities) { city in
-                        let unlock = unlockDate(for: city.tzID)
-                        HStack {
-                            Text(city.name)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(focusZone == city.tzID ? .white : .white.opacity(0.65))
-                            Spacer()
-                            Text(timeString(unlock, tzID: city.tzID, style: "EEE d.MM. · HH:mm"))
-                                .font(.caption)
-                                .foregroundStyle(.white.opacity(0.55))
-                        }
-                    }
-                }
+                Text(store.tr("100 % geschafft — die Wartezeit ist Geschichte. 🎉", "100% done — the wait is history. 🎉"))
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Text(store.tr(
+                    "Vom ersten Trailer am 5. Dezember 2023 bis heute sind es \(grouped(daysSinceTrailer)) Tage — 1.080 davon waren reines Warten auf den Release.",
+                    "From the first trailer on December 5, 2023 until today it's \(grouped(daysSinceTrailer)) days — 1,080 of them were pure waiting for release."
+                ))
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.65))
+                .fixedSize(horizontal: false, vertical: true)
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -578,19 +277,6 @@ struct CountdownView: View {
     }
 
     // MARK: - Helfer
-
-    /// Langes Datum in der App-Sprache (der FormatStyle-Pfad ignorierte die
-    /// Locale auf echten Geräten und zeigte US-Format trotz Deutsch).
-    private func longDate(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.locale = Lang.locale
-        f.dateStyle = .long
-        f.timeStyle = .none
-        // Die Meilenstein-Daten sind Berliner Mitternacht — in der
-        // Geräte-Zeitzone formatiert rutschten sie sonst einen Tag vor.
-        f.timeZone = TimeZone(identifier: "Europe/Berlin")
-        return f.string(from: date)
-    }
 
     private func parts(to target: Date, now: Date) -> (days: Int, hours: Int, minutes: Int, seconds: Int) {
         let interval = max(0, Int(target.timeIntervalSince(now)))

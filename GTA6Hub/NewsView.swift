@@ -102,17 +102,6 @@ struct NewsView: View {
                 withAnimation(.easeInOut(duration: 0.2)) { showBookmarksOnly = true }
             }
             Spacer(minLength: 0)
-            NavigationLink {
-                SpoilerShieldView()
-            } label: {
-                Image(systemName: "eye.slash.fill")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(spoilerFilterEnabled ? .white : .white.opacity(0.45))
-                    .frame(width: 34, height: 34)
-                    .glassPill()
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(store.tr("Spoiler-Schutz öffnen", "Open spoiler shield"))
         }
     }
 

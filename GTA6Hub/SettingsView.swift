@@ -59,10 +59,6 @@ struct SettingsView: View {
     private var exploreCard: some View {
         GlassCard {
             VStack(spacing: 0) {
-                exploreRow(icon: "eye.slash.fill", title: store.tr("Spoiler-Schutz-Hub", "Spoiler Shield Hub"), note: store.tr("Mute-Listen, Spoiler-Wellen-Zeitplan & Launch-Tag-Checkliste", "Mute lists, spoiler wave schedule & launch-day checklist")) {
-                    SpoilerShieldView()
-                }
-                Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 74)
                 exploreRow(icon: "theatermasks.fill", title: store.tr("Charaktere", "Characters"), note: store.tr("Jason, Lucia & die Gesichter von Leonida", "Jason, Lucia & the faces of Leonida")) {
                     CharactersView()
                 }
@@ -71,7 +67,7 @@ struct SettingsView: View {
                     PlacesView()
                 }
                 Divider().overlay(Color.white.opacity(0.12)).padding(.leading, 74)
-                exploreRow(icon: "checklist", title: store.tr("Launch-Checkliste", "Launch checklist"), note: store.tr("Abhaken, bis du startklar bist", "Tick everything off until you're ready")) {
+                exploreRow(icon: "checklist", title: store.tr("100%-Checkliste", "100% checklist"), note: store.tr("Alle 100%-Punkte nach der Story abhaken", "Tick off every 100% item after the story")) {
                     ChecklistView()
                 }
             }

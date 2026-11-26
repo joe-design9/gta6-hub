@@ -27,7 +27,7 @@ struct ContentView: View {
                     .tabItem { Label(store.tr("Start", "Start"), systemImage: "house.fill") }
                     .tag(0)
                 VicePage { CountdownView() }
-                    .tabItem { Label("GTA 6 Countdown", systemImage: "timer") }
+                    .tabItem { Label("GTA 6 Live", systemImage: "timer") }
                     .tag(1)
                 VicePage { ChatView() }
                     .tabItem { Label(store.tr("KI-Chat", "AI Chat"), systemImage: "sparkles") }
@@ -90,13 +90,18 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $store.qaShowUpdateNews) {
             NavigationStack { UpdateNewsView() }
         }
-        // QA-Aufnahme des Preload-Rechners (v1.7.0).
-        .fullScreenCover(isPresented: $store.qaShowPreload) {
-            NavigationStack { PreloadView() }
+        // QA-Aufnahmen der v2.1.0-Ansichten: je ein Cover.
+        .fullScreenCover(isPresented: $store.qaShowDashboard) {
+            NavigationStack { DashboardView() }
         }
-        // QA-Aufnahme des Spoiler-Schutz-Hubs (v2.0.0).
-        .fullScreenCover(isPresented: $store.qaShowSpoiler) {
-            NavigationStack { SpoilerShieldView() }
+        .fullScreenCover(isPresented: $store.qaShowCheats) {
+            NavigationStack { CheatsView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowPodcast) {
+            NavigationStack { PodcastView() }
+        }
+        .fullScreenCover(isPresented: $store.qaShowSecrets) {
+            NavigationStack { SecretsView() }
         }
         #endif
     }

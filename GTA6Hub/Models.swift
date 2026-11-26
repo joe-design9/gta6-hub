@@ -98,6 +98,40 @@ enum GTA6 {
         return Calendar(identifier: .gregorian).date(from: c) ?? Date()
     }
 
+    /// Neuseeland-Start: 18. November 2026, 12:00 Uhr Berlin — der
+    /// Moment, ab dem in Leonida gespielt wurde (v2.1.0).
+    static var nzLaunchDate: Date {
+        var c = DateComponents()
+        c.timeZone = TimeZone(identifier: "Europe/Berlin")
+        c.year = 2026; c.month = 11; c.day = 18; c.hour = 12; c.minute = 0; c.second = 0
+        return Calendar(identifier: .gregorian).date(from: c) ?? Date()
+    }
+
+    /// The Game Awards 2026: Donnerstag, 10. Dezember 2026 (Show am
+    /// US-Abend — Countdown hier auf den Tag, Berlin).
+    static var gameAwardsDate: Date {
+        var c = DateComponents()
+        c.timeZone = TimeZone(identifier: "Europe/Berlin")
+        c.year = 2026; c.month = 12; c.day = 10; c.hour = 0; c.minute = 0; c.second = 0
+        return Calendar(identifier: .gregorian).date(from: c) ?? Date()
+    }
+
+    /// Das Wett-Fenster für einen möglichen GTA-Online-Shadow-Drop:
+    /// 5. bis 26. Dezember 2026 (v2.1.0).
+    static var betWindowStart: Date {
+        var c = DateComponents()
+        c.timeZone = TimeZone(identifier: "Europe/Berlin")
+        c.year = 2026; c.month = 12; c.day = 5; c.hour = 0; c.minute = 0; c.second = 0
+        return Calendar(identifier: .gregorian).date(from: c) ?? Date()
+    }
+
+    static var betWindowEnd: Date {
+        var c = DateComponents()
+        c.timeZone = TimeZone(identifier: "Europe/Berlin")
+        c.year = 2026; c.month = 12; c.day = 26; c.hour = 23; c.minute = 59; c.second = 59
+        return Calendar(identifier: .gregorian).date(from: c) ?? Date()
+    }
+
     /// Trailer 1: 5. Dezember 2023 — Start der Wartezeit (Nostalgie-Tab).
     static var trailer1Date: Date {
         var c = DateComponents()
