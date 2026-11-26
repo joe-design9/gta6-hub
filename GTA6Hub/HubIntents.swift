@@ -109,7 +109,7 @@ struct ChecklistProgressIntent: AppIntent {
         let text: String
         if done >= total {
             text = Lang.tr(
-                "Alles erledigt: \(done) von \(total) Punkten. 100 Prozent — die Trophäe „A Long Road" gehört dir!",
+                "Alles erledigt: \(done) von \(total) Punkten. 100 Prozent — die Trophäe „A Long Road“ gehört dir!",
                 "All done: \(done) of \(total) items. 100 percent — the “A Long Road” trophy is yours!")
         } else if done == 0 {
             text = Lang.tr(

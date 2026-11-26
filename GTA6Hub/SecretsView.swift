@@ -34,7 +34,7 @@ struct SecretsView: View {
                  name: "Freddies Bunker",
                  areaDE: "Nordufer des Lake Leonida, North Leonard County",
                  areaEN: "North shore of Lake Leonida, North Leonard County",
-                 noteDE: "Prepper-Anlage mit Minen und Drohnen. Zweimal einbrechen („Retest Freddie's Defenses") — danach sind Hurrikane im Wetter-System freigeschaltet.",
+                 noteDE: "Prepper-Anlage mit Minen und Drohnen. Zweimal einbrechen („Retest Freddie's Defenses“) — danach sind Hurrikane im Wetter-System freigeschaltet.",
                  noteEN: "Prepper compound with mines and drones. Break in twice (“Retest Freddie's Defenses”) — afterwards hurricanes join the weather system."),
             Spot(id: "satan", icon: "flame.fill",
                  name: "Circles of Hell — Satan",
