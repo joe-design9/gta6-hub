@@ -28,7 +28,7 @@ enum CheatCategory: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    func title(_ store: AppStore) -> String {
+    @MainActor func title(_ store: AppStore) -> String {
         switch self {
         case .player: return store.tr("Spieler", "Player")
         case .combat: return store.tr("Kampf", "Combat")
